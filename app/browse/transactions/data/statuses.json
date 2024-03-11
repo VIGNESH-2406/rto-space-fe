@@ -1,0 +1,15 @@
+[
+    {
+      "value": "ready",
+      "label": "Ready"
+    },
+    {
+      "value": "created",
+      "label": "Created"
+    },
+    {
+      "value": "completed",
+      "label": "Completed"
+    }
+  ]
+
