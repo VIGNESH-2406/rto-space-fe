@@ -9,20 +9,25 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
+import Link from 'next/link';
+import { useToast } from "@/components/ui/use-toast"
 
 // Define Zod schema for form validation
 const schema = z.object({
-    email: z.string().email('Invalid email format').refine(data => {
-      // Custom validation function for email
-      const isValidEmail = /\S+@\S+\.(com|in)$/.test(data);
-      return isValidEmail || 'Invalid email format';
-    }),
-    password: z.string().min(3),
-  
-  });
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email format').refine(data => {
+    // Custom validation function for email
+    const isValidEmail = /\S+@\S+\.(com|in)$/.test(data);
+    return isValidEmail || 'Invalid email format';
+  }),
+  password: z.string().min(6),
+
+});
 
 const Register = () => {
   const router = useRouter();
+  const { toast } = useToast()
+
   const { handleSubmit, register, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
@@ -30,18 +35,29 @@ const Register = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('http://localhost:3005/api/register', data);
+      const response = await axios.post('http://localhost:3027/api/register', data);
 
-      if (response.ok) {
+      if (response.data.success) {
         // Redirect to the dashboard or another page upon successful registration
-        router.push('/dashboard');
+        toast({
+          title: "Login Success",
+          description: response.data.message,
+        })
+        router.push('/login');
       } else {
         // Handle registration failure, show error message, etc.
-        console.error('Registration failed');
+        toast({
+          title: "Login Failed",
+          description: response.data.error,
+        })
         router.push('/register');
       }
     } catch (error) {
-      console.error('Error during registration:', error);
+      toast({
+        title: "Registration Failed",
+        description: error.response.data.message,
+      })
+      console.error('Error during registration:', error.response.data.message);
     }
   };
 
@@ -51,6 +67,21 @@ const Register = () => {
         <h1 className="text-2xl font-semibold mb-6">Create an account</h1>
         <p className="font-sm mb-6">Enter your email below to create your account</p>
         <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-600">
+              User Name
+            </label>
+
+            <Input
+              type="name"
+              placeholder="Name"
+              {...register('name')}
+              className={`border ${errors.email ? 'border-red-500' : 'border-gray-300'} px-3 py-2 rounded-md w-full`}
+            />
+            {errors.name && (
+              <span className="text-red-500 text-sm">{errors.name.message}</span>
+            )}
+          </div>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-600">
               Email
@@ -83,9 +114,15 @@ const Register = () => {
           </div>
 
           <Button type="submit" variant="outline">
-            Submit
+            Create Account
           </Button>
         </form>
+        <div className='flex items-center mt-8 ml-2'>
+          <p className='text-sm'>Already have an account?</p>
+          <Link href="/login">
+            <p className="ml-2 underline">Sign in</p>
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -93,96 +130,6 @@ const Register = () => {
 
 export default Register;
 
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-// import { useRouter } from 'next/navigation';
-// import { Button } from "@/components/ui/button"
-// import { Input } from "@/components/ui/input"
-
-// import axios from "axios"
-
-// const register = () => {
-//     const router = useRouter();
-
-//     const [username, setUsername] = useState('');
-//     const [password, setPassword] = useState('');
-
-//     const handleUsernameChange = (e) => {
-//         setUsername(e.target.value);
-//     };
-
-//     const handlePasswordChange = (e) => {
-//         setPassword(e.target.value);
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-
-//         // Make API call to your backend with the provided credentials
-//         try {
-//             const response = await axios.post('http://localhost:3005/api/login', {
-//                 username, password
-//             });
-
-//             if (response.ok) {
-//                 // Redirect to the dashboard or another page upon successful login
-//                 router.push('/dashboard');
-
-//             } else {
-//                 // Handle login failure, show error message, etc.
-//                 console.error('register failed');
-//                 router.push('/register');
-
-//             }
-//         } catch (error) {
-//             console.error('Error during login:', error);
-//         }
-//     };
-
-//     return (
-//         <div className="min-h-screen flex items-center justify-center bg-gray-100">
-//             <div className="bg-white p-8 rounded shadow-md w-96">
-//                 <h1 className="text-2xl font-semibold mb-6">Create an account</h1>
-//                 <p className=" font-sm mb-6">Enter your email below to create your account</p>
-//                 <form onSubmit={handleSubmit}>
-//                     <div className="mb-4">
-//                         <label htmlFor="username" className="block text-sm font-medium text-gray-600">
-//                             Username
-//                         </label>
-
-//                         <Input type="email" placeholder="Email" value={username} onChange={handleUsernameChange} />
-//                     </div>
-//                     <div className="mb-4">
-//                         <label htmlFor="password" className="block text-sm font-medium text-gray-600">
-//                             Password
-//                         </label>
-
-//                         <Input type="password" placeholder="Password" value={password} onChange={handlePasswordChange} />
-
-//                     </div>
-
-//                     <Button
-
-//                         type="submit" variant="outline">
-//                         Submit
-//                     </Button>
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default register;
 
 
 
