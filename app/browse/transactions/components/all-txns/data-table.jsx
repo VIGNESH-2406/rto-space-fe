@@ -27,19 +27,11 @@ export default function AllTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
   const [columns, setColumns] = React.useState(allTxnsColumns)
   const [pagedData, setPagedData] = React.useState(pageOne)
-  const [data, setData] = React.useState(pagedData.items)
-  const [pageInfo, setPageInfo] = React.useState({
-    page: pagedData.page,
-    size: pagedData.size,
-    isFirst: pagedData.isFirst,
-    isLast: pagedData.isLast,
-    totalPages: pagedData.totalPages,
-    totalItems: pagedData.totalItems
-  })
+  const [data, setData] = React.useState([])
+  const [pageInfo, setPageInfo] = React.useState({})
 
   React.useEffect(() => {
     setData(pagedData.items)
-    console.log("new page size", pagedData.size)
     setPageInfo({
       page: pagedData.page,
       size: pagedData.size,
@@ -89,7 +81,7 @@ export default function AllTxnsDataTable() {
   return (
     <div className="space-y-4">
       <DataTableToolbar table={table} />
-      <DataTable table={table} />
+      <DataTable table={table} columns={columns} />
       <Pagination {...pageInfo} />
     </div>
   )

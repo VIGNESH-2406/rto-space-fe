@@ -8,9 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import axios from 'axios';
 import Link from 'next/link';
 import { useToast } from "@/components/ui/use-toast"
+import { useAxios } from '@/config/axios.config';
 
 // Define Zod schema for form validation
 const schema = z.object({
@@ -27,6 +27,7 @@ const schema = z.object({
 const Register = () => {
   const router = useRouter();
   const { toast } = useToast()
+  const axios = useAxios();
 
   const { handleSubmit, register, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -35,7 +36,7 @@ const Register = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('http://localhost:3027/api/register', data);
+      const response = await axios.post('/api/register', data);
 
       if (response.data.success) {
         // Redirect to the dashboard or another page upon successful registration
