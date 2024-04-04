@@ -43,7 +43,7 @@ export default function CompletedTxnsDataTable() {
 
   return <div className="space-y-4">
     <DataTableToolbar table={table} />
-    <DataTable table={table} />
+    <DataTable table={table} columns={columns} />
     <DataTablePagination table={table} />
   </div>
 }

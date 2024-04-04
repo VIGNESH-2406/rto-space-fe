@@ -48,7 +48,7 @@ export default function ReadyTxnsDataTable() {
   return (
     <div className="w-full">
       <DataTableToolbar table={table} />
-      <DataTable table={table} />
+      <DataTable table={table} columns={columns} />
       <div className="flex justify-center space-x-2 py-4">
         <Button variant="default" disabled={true} className="h-8">Process</Button>
       </div>

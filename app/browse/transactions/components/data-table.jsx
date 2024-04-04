@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default function DataTable({ table }) {
+export default function DataTable({ table, columns }) {
 
   return (
     <div className="w-full">
@@ -59,7 +59,7 @@ export default function DataTable({ table }) {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns?.length || 5}
                     className="h-24 text-center"
                   >
                     No results.

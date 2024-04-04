@@ -4,11 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useToast } from "@/components/ui/use-toast"
+import { useAtom } from 'jotai';
+import { tokenWithPersistenceAtom } from "@/lib/authAtom";
+import { useAxios } from '@/config/axios.config';
 
 // Define Zod schema for form validation
 const schema = z.object({
@@ -24,6 +26,8 @@ const schema = z.object({
 const Login = () => {
   const router = useRouter();
   const { toast } = useToast()
+  const [_, setToken] = useAtom(tokenWithPersistenceAtom);
+  const axios = useAxios();
 
   const { handleSubmit, register, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -32,22 +36,16 @@ const Login = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('http://localhost:3027/api/login', data);
+      const response = await axios.post('/api/login', data);
 
       if (response.data.success) {
-        // Redirect to the dashboard or another page upon successful login
-        toast({
-          title: "Login Success",
-          description: response.data.success,
-        })
+        setToken(response.data.userToken)
         router.push('/');
       } else {
-     
         toast({
           title: "Login Failed",
           description: response.data.error,
         })
-
         router.push('/register');
       }
     } catch (error) {
@@ -56,7 +54,7 @@ const Login = () => {
         title: "Login Failed",
         description: error.response.data.message,
       })
-      console.error('Error during login:',  error.response.data.message);
+      console.error('Error during login:', error.response.data.message);
     }
   };
 

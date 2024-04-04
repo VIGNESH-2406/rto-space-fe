@@ -14,7 +14,7 @@ export default function TransactionFormDialog({ open }) {
           Add a new transaction to manage RTO process.
         </DialogDescription>
       </DialogHeader>
-      <TransactionForm closeModalFunc={() => setShow(false)} />
+      <TransactionForm closeModal={() => setShow(false)} />
     </DialogContent>
   </Dialog>
 

@@ -45,6 +45,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 
 import React from "react"
+import { useAxios } from "@/config/axios.config"
 
 const options = [
   {
@@ -62,7 +63,9 @@ const options = [
 ]
 
 function ComboBox({ form, field, name, options, placeholder }) {
-  return <Popover>
+  const [open, setOpen] = React.useState(false)
+
+  return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild>
       <FormControl>
         <Button
@@ -93,6 +96,7 @@ function ComboBox({ form, field, name, options, placeholder }) {
               key={item.value}
               onSelect={() => {
                 form.setValue(name, item.value)
+                setOpen(false)
               }}
             >
               <CheckIcon
@@ -113,21 +117,28 @@ function ComboBox({ form, field, name, options, placeholder }) {
 
 }
 
-export default function TransactionForm({ closeModalFunc }) {
+export default function TransactionForm({ closeModal }) {
   const form = useForm()
+  const axios = useAxios()
 
   const [selectedValues, setSelectedValues] = React.useState(new Set())
 
-  function onSubmit(data) {
-    closeModalFunc()
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+  async function onSubmit(data) {
+    data.vehicleNo = data.vehicleNo.rto + " " + data.vehicleNo.number
+    data.services = data.services ? Array.from(data.services).join(",") : undefined
+    try {
+      await axios.post('/api/transaction/entry', data);
+      toast({
+        title: "Transaction created successfully"
+      })
+    } catch (error) {
+      toast({
+        title: "Oops! Something went wrong",
+        description: error.response.data.message
+      })
+    } finally {
+      closeModal()
+    }
   }
 
   return (
@@ -137,7 +148,7 @@ export default function TransactionForm({ closeModalFunc }) {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="customerCode"
+              name="customerId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Customer Code</FormLabel>
@@ -148,9 +159,9 @@ export default function TransactionForm({ closeModalFunc }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="CC-01">CC-01</SelectItem>
-                      <SelectItem value="CC-02">CC-02</SelectItem>
-                      <SelectItem value="CC-03">CC-03</SelectItem>
+                      <SelectItem value="01">01</SelectItem>
+                      <SelectItem value="02">02</SelectItem>
+                      <SelectItem value="03">03</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -171,14 +182,14 @@ export default function TransactionForm({ closeModalFunc }) {
               )}
             />
           </div>
-          <FormField
-            control={form.control}
-            name="vehicleNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Vehicle Number</FormLabel>
-                <div className="grid grid-cols-3 gap-4">
-                  <Select className="col-span-1" onValueChange={field.onChange} defaultValue={field.value}>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="vehicleNo.rto"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vehicle Number</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select RTO" />
@@ -190,14 +201,24 @@ export default function TransactionForm({ closeModalFunc }) {
                       <SelectItem value="MH-03">MH 03</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormControl className="col-span-2">
-                    <Input placeholder="remaining number" />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="vehicleNo.number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>&nbsp;</FormLabel>
+                  <FormControl>
+                    <Input placeholder="remaining number" disabled={!form.getValues("vehicleNo.rto")} {...field} />
                   </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <div className="grid grid-cols-2">
             <FormField
               control={form.control}
@@ -315,14 +336,14 @@ export default function TransactionForm({ closeModalFunc }) {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="fromRto"
+              name="fromRTO"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>From RTO</FormLabel>
                   <ComboBox
                     form={form}
                     field={field}
-                    name="fromRto"
+                    name="fromRTO"
                     options={[{ "label": "MH 01", "value": "MH 01" }]}
                     placeholder="RTO"
                   />
@@ -332,14 +353,14 @@ export default function TransactionForm({ closeModalFunc }) {
             />
             <FormField
               control={form.control}
-              name="toRto"
+              name="toRTO"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>To RTO</FormLabel>
                   <ComboBox
                     form={form}
                     field={field}
-                    name="toRto"
+                    name="toRTO"
                     options={[{ "label": "MH 01", "value": "MH 01" }]}
                     placeholder="RTO"
                   />
@@ -639,7 +660,7 @@ export default function TransactionForm({ closeModalFunc }) {
           />
         </div>
         <div className="flex justify-end gap-4 relative bottom-0 mt-4">
-          <Button variant="outline" onClick={() => closeModalFunc()}>
+          <Button variant="outline" onClick={() => closeModal()}>
             Cancel
           </Button>
           <Button type="submit">Save</Button>

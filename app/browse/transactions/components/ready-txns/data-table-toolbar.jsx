@@ -34,7 +34,8 @@ const rtos = [
   { "label": "MH 02", "value": "MH 02" },
   { "label": "MH 03", "value": "MH 03" },
   { "label": "MH 04", "value": "MH 04" },
-  { "label": "MH 05", "value": "MH 05" }
+  { "label": "MH 05", "value": "MH 05" },
+  { "label": "MH 10", "value": "MH 10" }
 ]
 
 export default function DataTableToolbar({ table }) {
@@ -164,7 +165,7 @@ export default function DataTableToolbar({ table }) {
             Add a new transaction to manage RTO process.
           </DialogDescription>
         </DialogHeader>
-        <TransactionForm closeModalFunc={() => setShowTransactionFormDialog(false)} />
+        <TransactionForm closeModal={() => setShowTransactionFormDialog(false)} />
       </DialogContent>
     </Dialog>
   </>
