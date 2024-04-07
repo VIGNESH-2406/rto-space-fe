@@ -39,6 +39,7 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
       table.toggleAllPageRowsSelected(false)
       updaterFunc(page, size)
     } catch (err) {
+      // TODO: add a toaster here
       console.log("error while updating status", err)
     }
   }
