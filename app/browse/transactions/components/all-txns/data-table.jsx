@@ -11,13 +11,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { DataTablePagination } from "./data-table-pagination-new"
+import { DataTablePagination } from "../data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
-import allTxnsColumns from "./columns"
+import columns from "./columns"
 import DataTable from "../data-table"
-import pageOne from "../../data/page1.json"
-import pageTwo from "../../data/page2.json"
-import pageThree from "../../data/page3.json"
+import { useAxios } from "@/config/axios.config"
 
 export default function AllTxnsDataTable() {
   const [rowSelection, setRowSelection] = React.useState({})
@@ -25,12 +23,22 @@ export default function AllTxnsDataTable() {
     React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const [columns, setColumns] = React.useState(allTxnsColumns)
-  const [pagedData, setPagedData] = React.useState(pageOne)
+  const [pagedData, setPagedData] = React.useState(null)
   const [data, setData] = React.useState([])
   const [pageInfo, setPageInfo] = React.useState({})
+  const axios = useAxios()
+
+  async function getTransactions(pageNumber, pageSize) {
+    const { data } = await axios.get(`/api/transaction/entry?page=${pageNumber}&size=${pageSize}`)
+    setPagedData(data)
+  }
 
   React.useEffect(() => {
+    getTransactions(0, 10)
+  }, [])
+
+  React.useEffect(() => {
+    if (!pagedData) return;
     setData(pagedData.items)
     setPageInfo({
       page: pagedData.page,
@@ -64,23 +72,16 @@ export default function AllTxnsDataTable() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  function getTransactions(pageNumber, pageSize) {
-    console.log("getTransactions", pageNumber, pageSize)
-    if (pageSize === 20) {
-      console.log("returning page three")
-      return pageThree
-    }
-    if (pageNumber === 0) {
-      return pageOne
-    }
-    return pageTwo
+  function updater(pageNumber, pageSize) {
+    getTransactions(pageNumber, Number(pageSize))
   }
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setPagedData(getTransactions(pageNumber, Number(pageSize))))
+  const Pagination = DataTablePagination(table)(updater)
+  const Toolbar = DataTableToolbar(table)(updater)
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <Toolbar {...pageInfo} />
       <DataTable table={table} columns={columns} />
       <Pagination {...pageInfo} />
     </div>

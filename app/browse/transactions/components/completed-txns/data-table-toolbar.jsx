@@ -86,11 +86,25 @@ export function ComboboxPopover({ column }) {
   )
 }
 
-function DatePickerWithRange({ className }) {
-  const [date, setDate] = React.useState({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
-  })
+function DatePickerWithRange({ className, updaterFunc }) {
+  const [date, setDate] = React.useState(null)
+
+  React.useEffect(() => {
+    console.log("date changed", date)
+    if (date && date.from && date.to) {
+      updaterFunc(prev => ({
+        ...prev,
+        from: date.from.toISOString().split('T')[0],
+        to: date.to.toISOString().split('T')[0]
+      }))
+    } else {
+      updaterFunc(prev => ({
+        ...prev,
+        from: '',
+        to: ''
+      }))
+    }
+  }, [date])
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -115,7 +129,7 @@ function DatePickerWithRange({ className }) {
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -135,9 +149,7 @@ function DatePickerWithRange({ className }) {
 }
 
 
-export function DataTableToolbar({
-  table,
-}) {
+export function DataTableToolbar({ table, updaterFunc }) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
 
@@ -152,8 +164,13 @@ export function DataTableToolbar({
           <span className="ml-4 text-sm"> Create Transaction </span>
         </Button>
         <div className="flex items-center space-x-2">
-          <DatePickerWithRange />
-          <Input type="text" placeholder="search customer" className="w-52" />
+          <DatePickerWithRange updaterFunc={updaterFunc} />
+          <Input
+            type="text"
+            placeholder="search customer"
+            className="w-52"
+            onChange={(e) => updaterFunc(prev => ({ ...prev, keyword: e.target.value }))}
+          />
         </div>
       </div>
       <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>

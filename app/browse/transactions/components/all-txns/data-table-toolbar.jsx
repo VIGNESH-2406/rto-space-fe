@@ -21,70 +21,49 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
+import { useAxios } from "@/config/axios.config";
 
-export function ComboboxPopover({ column }) {
+export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => {
+  const isFiltered = table.getState().columnFilters.length > 0
+  const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [selectedStatus, setSelectedStatus] = React.useState(null)
+  const axios = useAxios()
+
+  async function updateStatus() {
+    try {
+      await axios.patch('/api/transaction/entry/status', {
+        ids: table.getFilteredSelectedRowModel().rows.map(x => x.original.entryId),
+        status: selectedStatus.value
+      })
+      table.toggleAllPageRowsSelected(false)
+      updaterFunc(page, size)
+    } catch (err) {
+      // TODO: add a toaster here
+      console.log("error while updating status", err)
+    }
+  }
+
+  React.useEffect(() => {
+    if (selectedStatus) {
+      updateStatus()
+    }
+  }, [selectedStatus])
+
   const statuses = [
     {
-      value: "ready",
+      value: "READY",
       label: "Ready",
     },
     {
-      value: "created",
+      value: "CREATED",
       label: "Created"
     },
     {
-      value: "completed",
+      value: "COMPLETED",
       label: "Completed"
     }
   ]
-
-  return (
-    <div className="flex items-center space-x-4">
-      <p className="text-sm text-muted-foreground">Status</p>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className=" h-8 w-[150px] justify-start">
-            {selectedStatus ? <>{selectedStatus.label}</> : <>+ Set status</>}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="p-0" side="right" align="start">
-          <Command>
-            <CommandInput placeholder="Change status..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {statuses.map((status) => (
-                  <CommandItem
-                    key={status.value}
-                    value={status.value}
-                    onSelect={(value) => {
-                      column.setFilterValue(value)
-                      setSelectedStatus(
-                        statuses.find((priority) => priority.value === value) ||
-                        null
-                      )
-                      setOpen(false)
-                    }}
-                  >
-                    {status.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
-  )
-}
-
-export function DataTableToolbar({
-  table,
-}) {
-  const isFiltered = table.getState().columnFilters.length > 0
-  const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
 
   return (
     <>
@@ -98,7 +77,46 @@ export function DataTableToolbar({
         </Button>
         <div className="flex items-center space-x-2">
           {table.getColumn("status") && (
-            <ComboboxPopover column={table.getColumn("status")} />
+            <div className="flex items-center space-x-4">
+              <Popover open={open} onOpenChange={setOpen} >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className=" h-8 w-[150px] justify-start"
+                    disabled={!table.getFilteredSelectedRowModel().rows.length}
+                  >
+                    {selectedStatus ? <>{selectedStatus.label}</> : <>+ Update status</>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0" side="right" align="start">
+                  <Command>
+                    <CommandInput placeholder="Change status..." />
+                    <CommandList>
+                      <CommandEmpty>No results found.</CommandEmpty>
+                      <CommandGroup>
+                        {statuses.map((status) => (
+                          <CommandItem
+                            key={status.value}
+                            value={status.value}
+                            onSelect={(value) => {
+                              console.log(table.getFilteredSelectedRowModel().rows.map(x => x.original.entryId), "rows")
+                              setSelectedStatus(
+                                statuses.find((priority) => priority.value === value.toUpperCase()) ||
+                                null
+                              )
+                              setOpen(false)
+                            }}
+                          >
+                            {status.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
           )}
           {isFiltered && (
             <Button

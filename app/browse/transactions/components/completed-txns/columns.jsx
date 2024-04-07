@@ -28,16 +28,16 @@ export const completedTxnsColumns = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "customerName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Customer Name" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="w-[120px]">{row.getValue("customerName")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "vehicleNumber",
+    accessorKey: "vehicleNo",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Vehicle No." />
     ),
@@ -46,7 +46,7 @@ export const completedTxnsColumns = [
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("vehicleNumber")}
+            {row.getValue("vehicleNo")}
           </span>
         </div>
       )

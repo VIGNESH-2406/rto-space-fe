@@ -46,6 +46,7 @@ import { Separator } from "@/components/ui/separator"
 
 import React from "react"
 import { useAxios } from "@/config/axios.config"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const options = [
   {
@@ -85,49 +86,148 @@ function ComboBox({ form, field, name, options, placeholder }) {
         </Button>
       </FormControl>
     </PopoverTrigger>
-    <PopoverContent className="w-[200px] p-0">
+    <PopoverContent className="w-[400px] p-0">
       <Command>
         <CommandInput placeholder={`Search ${placeholder ?? name}...`} />
-        <CommandEmpty>No {placeholder ?? name} found.</CommandEmpty>
-        <CommandGroup>
-          {options.map((item) => (
-            <CommandItem
-              value={item.label}
-              key={item.value}
-              onSelect={() => {
-                form.setValue(name, item.value)
-                setOpen(false)
-              }}
-            >
-              <CheckIcon
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  item.value === field.value
-                    ? "opacity-100"
-                    : "opacity-0"
-                )}
-              />
-              {item.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
+        <ScrollArea className="h-48">
+          <CommandEmpty>No {placeholder ?? name} found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((item) => (
+              <CommandItem
+                value={item.label}
+                key={item.value}
+                onSelect={() => {
+                  form.setValue(name, item.value)
+                  setOpen(false)
+                }}
+              >
+                <CheckIcon
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    item.value === field.value
+                      ? "opacity-100"
+                      : "opacity-0"
+                  )}
+                />
+                {item.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </ScrollArea>
       </Command>
     </PopoverContent>
   </Popover>
 
 }
 
-export default function TransactionForm({ closeModal }) {
-  const form = useForm()
+export default function TransactionForm({ data, closeModal }) {
   const axios = useAxios()
+  const defaultValues = data ?? null
+  const form = useForm({ defaultValues })
+  const [customers, setCustomers] = React.useState([
+    { customerId: 1, customerName: "Ryan Garcia" },
+    { customerId: 2, customerName: "Lionel Messi" },
+    { customerId: 3, customerName: "K De Bruyne" },
+    { customerId: 4, customerName: "Jon Jones" },
+    { customerId: 5, customerName: "Dwight Schrute" },
+    { customerId: 6, customerName: "M Scott" },
+    { customerId: 7, customerName: "Nard Dog" },
+  ])
+  const [services, setServices] = React.useState([
+    {
+      "serviceId": "CA",
+      "serviceName": "Change of Address"
+    },
+    {
+      "serviceId": "DRC",
+      "serviceName": "Duplicate RC"
+    },
+    {
+      "serviceId": "GTX",
+      "serviceName": "Green Tax"
+    },
+    {
+      "serviceId": "HPA",
+      "serviceName": "Addition of Hypothecation",
+    },
+    {
+      "serviceId": "HPC",
+      "serviceName": "Continuation of Hypothecation",
+    },
+    {
+      "serviceId": "HPT",
+      "serviceName": "Termination of Hypothecation",
+    },
+    {
+      "serviceId": "IC",
+      "serviceName": "nan",
+    },
+    {
+      "serviceId": "INS",
+      "serviceName": "Insurance",
+    },
+    {
+      "serviceId": "NOC",
+      "serviceName": "No Objection Certificate",
+    },
+    {
+      "serviceId": "OTS",
+      "serviceName": "nan",
+    }
+  ])
+  const [banks, setBanks] = React.useState([])
+  const [rtos, setRtos] = React.useState([
+    {
+      "rto": "MH01",
+      "rtoName": "Mumbai (Central)",
+    },
+    {
+      "rto": "MH02",
+      "rtoName": "Mumbai (West)",
+    },
+    {
+      "rto": "MH03",
+      "rtoName": "Mumbai (East)",
+    },
+    {
+      "rto": "MH04",
+      "rtoName": "Thane",
+    },
+    {
+      "rto": "MH05",
+      "rtoName": "Kalyan",
+    },
+    {
+      "rto": "MH06",
+      "rtoName": "Raigad",
+    }
+  ])
 
   const [selectedValues, setSelectedValues] = React.useState(new Set())
 
+  React.useEffect(() => {
+    if (defaultValues) {
+      setSelectedValues(defaultValues.services)
+      form.setValue("services", defaultValues.services)
+    }
+  }, [])
+
   async function onSubmit(data) {
     data.vehicleNo = data.vehicleNo.rto + " " + data.vehicleNo.number
-    data.services = data.services ? Array.from(data.services).join(",") : undefined
+    data.services = data.services ? Array.from(data.services).join("/") : undefined
+    let formData = new FormData();
+
+    for (var key in data) {
+      formData.append(key, data[key]);
+    }
+
+    console.log("data submitted", formData)
     try {
-      await axios.post('/api/transaction/entry', data);
+      await axios.post('/api/transaction/entry', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
       toast({
         title: "Transaction created successfully"
       })
@@ -152,18 +252,12 @@ export default function TransactionForm({ closeModal }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Customer Code</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select code" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="01">01</SelectItem>
-                      <SelectItem value="02">02</SelectItem>
-                      <SelectItem value="03">03</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <ComboBox
+                    form={form}
+                    field={field}
+                    name="code"
+                    options={customers.map(x => ({ label: x.customerId, value: x.customerId }))}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -189,18 +283,13 @@ export default function TransactionForm({ closeModal }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Vehicle Number</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select RTO" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="MH-01">MH 01</SelectItem>
-                      <SelectItem value="MH-02">MH 02</SelectItem>
-                      <SelectItem value="MH-03">MH 03</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <ComboBox
+                    form={form}
+                    field={field}
+                    name="fromRTO"
+                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
+                    placeholder="RTO"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -229,9 +318,9 @@ export default function TransactionForm({ closeModal }) {
                   <FormControl>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="flex h-9 border-dashed w-min-50 w-max-60">
+                        <Button variant="outline" size="sm" className="flex h-9 border-dashed w-[500px]">
                           <PlusCircledIcon className="mr-2 h-4 w-4" />
-                          Services
+                          <p className="text-muted-foreground">Services</p>
                           {selectedValues.size > 0 && (
                             <>
                               <Separator orientation="vertical" className="mx-2 h-4" />
@@ -260,42 +349,44 @@ export default function TransactionForm({ closeModal }) {
                           )}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0" align="start">
+                      <PopoverContent className="w-[400px] p-0" align="start">
                         <Command>
                           <CommandList>
-                            <CommandGroup>
-                              {options.map((option) => {
-                                const isSelected = selectedValues.has(option.value)
-                                return (
-                                  <CommandItem
-                                    key={option.value}
-                                    onSelect={() => {
-                                      if (isSelected) {
-                                        selectedValues.delete(option.value)
-                                      } else {
-                                        selectedValues.add(option.value)
-                                      }
-                                      setSelectedValues(
-                                        selectedValues.size ? selectedValues : new Set()
-                                      )
-                                      form.setValue("services", selectedValues)
-                                    }}
-                                  >
-                                    <div
-                                      className={cn(
-                                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                        isSelected
-                                          ? "bg-primary text-primary-foreground"
-                                          : "opacity-50 [&_svg]:invisible"
-                                      )}
+                            <ScrollArea className="h-48">
+                              <CommandGroup>
+                                {services.map((option) => {
+                                  const isSelected = selectedValues.has(option.serviceId)
+                                  return (
+                                    <CommandItem
+                                      key={option.serviceId}
+                                      onSelect={() => {
+                                        if (isSelected) {
+                                          selectedValues.delete(option.serviceId)
+                                        } else {
+                                          selectedValues.add(option.serviceId)
+                                        }
+                                        setSelectedValues(
+                                          selectedValues.size ? selectedValues : new Set()
+                                        )
+                                        form.setValue("services", selectedValues)
+                                      }}
                                     >
-                                      <CheckIcon className={cn("h-4 w-4")} />
-                                    </div>
-                                    <span>{option.label}</span>
-                                  </CommandItem>
-                                )
-                              })}
-                            </CommandGroup>
+                                      <div
+                                        className={cn(
+                                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                          isSelected
+                                            ? "bg-primary text-primary-foreground"
+                                            : "opacity-50 [&_svg]:invisible"
+                                        )}
+                                      >
+                                        <CheckIcon className={cn("h-4 w-4")} />
+                                      </div>
+                                      <span>{option.serviceId}</span>
+                                    </CommandItem>
+                                  )
+                                })}
+                              </CommandGroup>
+                            </ScrollArea>
                             {selectedValues.size > 0 && (
                               <>
                                 <CommandSeparator />
@@ -314,7 +405,6 @@ export default function TransactionForm({ closeModal }) {
                       </PopoverContent>
                     </Popover>
                   </FormControl>
-                  <FormDescription>Select services</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -344,7 +434,7 @@ export default function TransactionForm({ closeModal }) {
                     form={form}
                     field={field}
                     name="fromRTO"
-                    options={[{ "label": "MH 01", "value": "MH 01" }]}
+                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
                     placeholder="RTO"
                   />
                   <FormMessage />
@@ -361,7 +451,7 @@ export default function TransactionForm({ closeModal }) {
                     form={form}
                     field={field}
                     name="toRTO"
-                    options={[{ "label": "MH 01", "value": "MH 01" }]}
+                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
                     placeholder="RTO"
                   />
                   <FormMessage />
@@ -591,7 +681,7 @@ export default function TransactionForm({ closeModal }) {
             name="addressProof"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Adress proof</FormLabel>
+                <FormLabel>Address proof</FormLabel>
                 <FormControl>
                   <Input
                     type="file"
@@ -624,7 +714,7 @@ export default function TransactionForm({ closeModal }) {
           />
           <FormField
             control={form.control}
-            name="chassisProof"
+            name="chasisProof"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Chassis proof</FormLabel>
@@ -633,7 +723,7 @@ export default function TransactionForm({ closeModal }) {
                     type="file"
                     accept=".pdf"
                     onChange={(e) => field.onChange(e.target.files[0])}
-                    id="chassisProof"
+                    id="chasisProof"
                   />
                 </FormControl>
                 <FormMessage />

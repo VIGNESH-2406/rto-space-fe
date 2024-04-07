@@ -12,11 +12,12 @@ import {
 
 import { Button } from "@/components/ui/button"
 
-import { DataTablePagination } from "../all-txns/data-table-pagination"
+// import { DataTablePagination } from "../all-txns/data-table-pagination"
 import DataTable from "../data-table"
 import DataTableToolbar from "./data-table-toolbar"
 import { readyTxnsColumns } from "./columns"
-import transactions from "../../data/transactions.json"
+import { DataTablePagination } from "../data-table-pagination"
+import { useAxios } from "@/config/axios.config"
 
 export default function ReadyTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
@@ -24,7 +25,32 @@ export default function ReadyTxnsDataTable() {
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [columns, setColumns] = React.useState(readyTxnsColumns);
-  const [data, setData] = React.useState(transactions);
+  const [pagedData, setPagedData] = React.useState(null)
+  const [data, setData] = React.useState([])
+  const [pageInfo, setPageInfo] = React.useState({})
+  const axios = useAxios()
+
+  async function getTransactions(pageNumber, pageSize) {
+    const { data } = await axios.get(`/api/transaction/entry?page=${pageNumber}&size=${pageSize}&status=READY`)
+    setPagedData(data)
+  }
+
+  React.useEffect(() => {
+    getTransactions(0, 10)
+  }, [])
+
+  React.useEffect(() => {
+    if (!pagedData) return;
+    setData(pagedData.items)
+    setPageInfo({
+      page: pagedData.page,
+      size: pagedData.size,
+      isFirst: pagedData.isFirst,
+      isLast: pagedData.isLast,
+      totalPages: pagedData.totalPages,
+      totalItems: pagedData.totalItems
+    })
+  }, [pagedData])
 
   const table = useReactTable({
     data,
@@ -45,6 +71,8 @@ export default function ReadyTxnsDataTable() {
     },
   })
 
+  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => getTransactions(pageNumber, Number(pageSize)))
+
   return (
     <div className="w-full">
       <DataTableToolbar table={table} />
@@ -52,7 +80,7 @@ export default function ReadyTxnsDataTable() {
       <div className="flex justify-center space-x-2 py-4">
         <Button variant="default" disabled={true} className="h-8">Process</Button>
       </div>
-      <DataTablePagination table={table} />
+      <Pagination {...pageInfo} />
     </div>
   )
 }
