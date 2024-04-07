@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
+import { Input } from "@/components/ui/input";
 
 const deliveryAgents = [
   { "label": "Emily Johnson", "value": "Emily Johnson" },
@@ -114,47 +115,7 @@ export default function DataTableToolbar({ table }) {
           </PopoverContent>
         </Popover>
         <Separator orientation="vertical" />
-        <Popover open={openDeliveryAgentSearch} onOpenChange={setOpenDeliveryAgentSearch}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-label="select delivery agent"
-              aria-expanded={openDeliveryAgentSearch}
-              className="flex-1 h-8 justify-between max-w-[200px]"
-            >
-              {deliveryAgent ? deliveryAgent.label : `Select delivery agent`}
-              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder={`Search agents`} />
-              <CommandEmpty>No data found.</CommandEmpty>
-              <CommandGroup>
-                {deliveryAgents.map((item) => (
-                  <CommandItem
-                    key={item.value}
-                    onSelect={() => {
-                      setDeliveryAgent(item)
-                      setOpenDeliveryAgentSearch(false)
-                    }}
-                  >
-                    {item.label}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        deliveryAgent?.value === item.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
+         <Input className="w-52" placeholder="assign delivery agent"  />
       </div>
     </div>
     <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>

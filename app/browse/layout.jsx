@@ -7,13 +7,13 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react"
-import { AccountSwitcher } from "@/app/browse/transactions/components/account-switcher"
 import { Nav } from "@/app/browse/transactions/components/nav"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import ProtectedRoute from "@/components/protected-route"
+import { UserNav } from "@/components/user-nav"
 
 export default function Browse({ children }) {
   const [defaultLayout, setDefaultLayout] = React.useState([20, 80]);
@@ -44,8 +44,8 @@ export default function Browse({ children }) {
             onExpand={() => setIsCollapsed(false)}
             className={cn(isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out")}
           >
-            <div className={cn("flex h-[52px] items-center justify-center", isCollapsed ? 'h-[52px]' : 'px-2')}>
-              <AccountSwitcher isCollapsed={isCollapsed} accounts={[]} />
+            <div className={cn("flex h-[52px] pt-2 pl-2", isCollapsed ? 'h-[52px] w-[50px]' : 'px-2')}>
+              <UserNav isCollapsed={isCollapsed} />
             </div>
             <Nav
               isCollapsed={isCollapsed}
