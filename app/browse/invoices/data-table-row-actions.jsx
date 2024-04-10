@@ -14,10 +14,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React from "react";
 
-export function DataTableRowActions({
-  row,
-  tableName
-}) {
+export function DataTableRowActions({ row }) {
   const [showDialog, setShowDialog] = React.useState(false)
 
   return (

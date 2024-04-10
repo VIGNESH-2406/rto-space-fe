@@ -181,7 +181,7 @@ export function DataTableToolbar({ table, updaterFunc }) {
               Add a new transaction to manage RTO process.
             </DialogDescription>
           </DialogHeader>
-          <TransactionForm closeModal={() => setShowTransactionFormDialog(false)} />
+          <TransactionForm tableName="Completed" closeModal={() => setShowTransactionFormDialog(false)} />
         </DialogContent>
       </Dialog>
     </>
