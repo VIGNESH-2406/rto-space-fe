@@ -109,6 +109,6 @@ export const readyTxnsColumns = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    cell: ({ row }) => <DataTableRowActions row={row} tableName="Ready"/>,
   },
 ]

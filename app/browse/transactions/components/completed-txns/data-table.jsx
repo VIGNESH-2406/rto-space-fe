@@ -8,15 +8,38 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { completedTxnsColumns } from "./columns";
+import columns from "./columns";
 import { DataTablePagination } from "../data-table-pagination";
 import React from "react";
-import { useAxios } from "@/config/axios.config";
+import axios from "@/config/axios.new.config";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { LoaderCircle } from 'lucide-react';
+import { atom, useAtomValue, useAtom } from 'jotai'
 
+const dataAtom = atom([])
+const completedTxnsQueryParamsAtom = atom({})
+const pageInfoAtom = atom({})
+
+export const completedTxnsPageAtom = atom(
+  (get) => get(completedTxnsQueryParamsAtom),
+  async (get, set, update) => {
+    set(completedTxnsQueryParamsAtom, update)
+    const params = get(completedTxnsQueryParamsAtom)
+
+    let url = "/api/transaction/entry?status=COMPLETED"
+    const queryString = objectToQueryString(params)
+    if (queryString.trim().length) {
+      url += `&${queryString}`
+    }
+
+    const { data: response } = await axios.get(url)
+    const { totalPages, totalItems, isFirst, isLast, page, size } = response
+    set(dataAtom, response.items)
+    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
+  }
+)
 
 function objectToQueryString(obj) {
   if (typeof obj !== 'object' || obj === null) {
@@ -38,45 +61,15 @@ export default function CompletedTxnsDataTable() {
   const [columnFilters, setColumnFilters] = React.useState([])
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columns, setColumns] = React.useState(completedTxnsColumns);
-  const [pagedData, setPagedData] = React.useState(null)
-  const [data, setData] = React.useState([])
-  const [pageInfo, setPageInfo] = React.useState({})
-  const [searchParams, setSearchParams] = React.useState({ keyword: '', from: '', to: '' })
-  const axios = useAxios()
+  const [queryParams, setQueryParams] = useAtom(completedTxnsPageAtom)
+  const data = useAtomValue(dataAtom)
+  const pageInfo = useAtomValue(pageInfoAtom)
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  async function getTransactions(pageNumber, pageSize) {
-    let url = `/api/transaction/entry?page=${pageNumber}&size=${pageSize}&status=COMPLETED`;
-    const queryString = objectToQueryString(searchParams)
-    if (queryString.trim().length) {
-      url += `&${queryString}`
-    }
-    const { data } = await axios.get(url)
-    setPagedData(data)
-  }
-
   React.useEffect(() => {
-    getTransactions(0, 10)
+    setQueryParams({ page: '0', size: '10', keyword: '', from: '', to: '' })
   }, [])
-
-  React.useEffect(() => {
-    getTransactions(0, 10)
-  }, [searchParams])
-
-  React.useEffect(() => {
-    if (!pagedData) return;
-    setData(pagedData.items)
-    setPageInfo({
-      page: pagedData.page,
-      size: pagedData.size,
-      isFirst: pagedData.isFirst,
-      isLast: pagedData.isLast,
-      totalPages: pagedData.totalPages,
-      totalItems: pagedData.totalItems
-    })
-  }, [pagedData])
 
   const table = useReactTable({
     data,
@@ -97,10 +90,10 @@ export default function CompletedTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => getTransactions(pageNumber, Number(pageSize)))
+  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize }))
 
   return <div className="space-y-4">
-    <DataTableToolbar table={table} updaterFunc={setSearchParams} />
+    <DataTableToolbar table={table} updaterFunc={setQueryParams} />
     <DataTable table={table} columns={columns} />
     <div className="flex justify-center space-x-2 py-4">
       <Button
@@ -150,7 +143,7 @@ export default function CompletedTxnsDataTable() {
       > {isLoading ? (
         <div className="flex items-center">
           <span className="mr-2">Processing...</span>
-          <LoaderCircle className="animate-spin" size={20} /> {/* Adjust size as needed */}
+          <LoaderCircle className="animate-spin" size={20} />
         </div>
       ) : (
         'Process'

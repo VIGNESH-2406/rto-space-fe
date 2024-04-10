@@ -1,8 +1,6 @@
 "use client"
 
 import { Checkbox } from "@/components/ui/checkbox"
-
-import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 
 const columns = [
@@ -31,38 +29,38 @@ const columns = [
     enableHiding: false,
   },
   {
-    accessorKey: "customerName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Customer Name" />
+    accessorKey: "invoiceNo",
+    header: () => (
+      <div>Invoice no.</div>
     ),
-    cell: ({ row }) => <div className="w-[120px]">{row.getValue("customerName")}</div>,
+    cell: ({ row }) => <div className="w-[120px]">{row.getValue("invoiceNo")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "vehicleNo",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Vehicle No." />
+    accessorKey: "customerName",
+    header: () => (
+      <div>Customer name</div>
     ),
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("vehicleNo")}
+            {row.getValue("customerName")}
           </span>
         </div>
       )
     },
   },
   {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+    accessorKey: "totalVehicles",
+    header: () => (
+      <div>Total vehicles</div>
     ),
     cell: ({ row }) => {
       return (
         <div className="flex w-[120px] items-center">
-          <span>{row.getValue("status")}</span>
+          <span>{row.getValue("totalVehicles")}</span>
         </div>
       )
     },
@@ -71,28 +69,12 @@ const columns = [
     },
   },
   {
-    accessorKey: "services",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Services" />
+    accessorKey: "totalAmount",
+    header: () => (
+      <div>Total amount</div>
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <span>{row.getValue("services")}</span>
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-  },
-  {
-    accessorKey: "amount",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Amount" />
-    ),
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"))
+      const amount = parseFloat(row.getValue("totalAmount"))
 
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -111,7 +93,7 @@ const columns = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} tableName="All" />,
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]
 

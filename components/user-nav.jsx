@@ -50,7 +50,8 @@ export function UserNav({ isCollapsed }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => {
-          setToken(null);
+          // setToken(null);
+          localStorage.removeItem('userToken')
           router.replace('/login');
         }}>
           Log out

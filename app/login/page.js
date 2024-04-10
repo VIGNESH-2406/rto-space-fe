@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useToast } from "@/components/ui/use-toast"
-import { useAtom } from 'jotai';
-import { tokenWithPersistenceAtom } from "@/lib/authAtom";
-import { useAxios } from '@/config/axios.config';
+import axios from '@/config/axios.new.config';
 
 // Define Zod schema for form validation
 const schema = z.object({
@@ -26,8 +24,6 @@ const schema = z.object({
 const Login = () => {
   const router = useRouter();
   const { toast } = useToast()
-  const [_, setToken] = useAtom(tokenWithPersistenceAtom);
-  const axios = useAxios();
 
   const { handleSubmit, register, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
@@ -39,7 +35,7 @@ const Login = () => {
       const response = await axios.post('/api/login', data);
 
       if (response.data.success) {
-        setToken(response.data.userToken)
+        localStorage.setItem('userToken', response.data.userToken)
         router.push('/');
       } else {
         toast({

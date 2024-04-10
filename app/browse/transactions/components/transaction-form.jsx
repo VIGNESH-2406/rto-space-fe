@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,13 +16,6 @@ import {
 
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 import { CheckIcon, PlusCircledIcon, CaretSortIcon, CalendarIcon } from "@radix-ui/react-icons"
@@ -45,23 +37,13 @@ import {
 import { Separator } from "@/components/ui/separator"
 
 import React from "react"
-import { useAxios } from "@/config/axios.config"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useAtom } from 'jotai'
+import { allTxnsPageAtom } from "./all-txns/data-table"
+import { readyTxnsPageAtom } from "./ready-txns/data-table"
+import { completedTxnsPageAtom } from "./completed-txns/data-table"
 
-const options = [
-  {
-    "label": "NOC",
-    "value": "NOC"
-  },
-  {
-    "label": "HPC",
-    "value": "HPC"
-  },
-  {
-    "label": "TO",
-    "value": "TO"
-  }
-]
+import axios from '@/config/axios.new.config'
 
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
@@ -77,24 +59,20 @@ function ComboBox({ form, field, name, options, placeholder }) {
             !field.value && "text-muted-foreground"
           )}
         >
-          {field.value
-            ? options.find(
-              (item) => item.value === field.value
-            )?.label
-            : `Select ${placeholder ?? name}`}
+          {field.value ? options.find(item => item.value === field.value)?.label : `Select ${placeholder}`}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </FormControl>
     </PopoverTrigger>
     <PopoverContent className="w-[400px] p-0">
       <Command>
-        <CommandInput placeholder={`Search ${placeholder ?? name}...`} />
+        <CommandInput placeholder={`Search ${placeholder}...`} />
         <ScrollArea className="h-48">
-          <CommandEmpty>No {placeholder ?? name} found.</CommandEmpty>
+          <CommandEmpty>No {placeholder} found.</CommandEmpty>
           <CommandGroup>
             {options.map((item) => (
               <CommandItem
-                value={item.label}
+                value={item.value}
                 key={item.value}
                 onSelect={() => {
                   form.setValue(name, item.value)
@@ -120,108 +98,92 @@ function ComboBox({ form, field, name, options, placeholder }) {
 
 }
 
-export default function TransactionForm({ data, closeModal }) {
-  const axios = useAxios()
+export default function TransactionForm({ data, tableName, closeModal }) {
   const defaultValues = data ?? null
   const form = useForm({ defaultValues })
-  const [customers, setCustomers] = React.useState([
-    { customerId: 1, customerName: "Ryan Garcia" },
-    { customerId: 2, customerName: "Lionel Messi" },
-    { customerId: 3, customerName: "K De Bruyne" },
-    { customerId: 4, customerName: "Jon Jones" },
-    { customerId: 5, customerName: "Dwight Schrute" },
-    { customerId: 6, customerName: "M Scott" },
-    { customerId: 7, customerName: "Nard Dog" },
-  ])
-  const [services, setServices] = React.useState([
-    {
-      "serviceId": "CA",
-      "serviceName": "Change of Address"
-    },
-    {
-      "serviceId": "DRC",
-      "serviceName": "Duplicate RC"
-    },
-    {
-      "serviceId": "GTX",
-      "serviceName": "Green Tax"
-    },
-    {
-      "serviceId": "HPA",
-      "serviceName": "Addition of Hypothecation",
-    },
-    {
-      "serviceId": "HPC",
-      "serviceName": "Continuation of Hypothecation",
-    },
-    {
-      "serviceId": "HPT",
-      "serviceName": "Termination of Hypothecation",
-    },
-    {
-      "serviceId": "IC",
-      "serviceName": "nan",
-    },
-    {
-      "serviceId": "INS",
-      "serviceName": "Insurance",
-    },
-    {
-      "serviceId": "NOC",
-      "serviceName": "No Objection Certificate",
-    },
-    {
-      "serviceId": "OTS",
-      "serviceName": "nan",
-    }
-  ])
+  const watchVehicleRTO = form.watch("vehicleNo.rto");
+  const watchServices = form.watch("services");
+
+  const [customers, setCustomers] = React.useState([])
+  const [services, setServices] = React.useState([])
   const [banks, setBanks] = React.useState([])
-  const [rtos, setRtos] = React.useState([
-    {
-      "rto": "MH01",
-      "rtoName": "Mumbai (Central)",
-    },
-    {
-      "rto": "MH02",
-      "rtoName": "Mumbai (West)",
-    },
-    {
-      "rto": "MH03",
-      "rtoName": "Mumbai (East)",
-    },
-    {
-      "rto": "MH04",
-      "rtoName": "Thane",
-    },
-    {
-      "rto": "MH05",
-      "rtoName": "Kalyan",
-    },
-    {
-      "rto": "MH06",
-      "rtoName": "Raigad",
-    }
-  ])
+  const [rtos, setRtos] = React.useState([])
+  const [allTxnsQueryParams, setAllTxnsQueryParams] = useAtom(allTxnsPageAtom)
+  const [readyTxnsQueryParams, setReadyTxnsQueryParams] = useAtom(readyTxnsPageAtom)
+  const [completedTxnsQueryParams, setCompletedTxnsQueryParams] = useAtom(completedTxnsPageAtom)
 
   const [selectedValues, setSelectedValues] = React.useState(new Set())
 
   React.useEffect(() => {
-    if (defaultValues) {
-      setSelectedValues(defaultValues.services)
-      form.setValue("services", defaultValues.services)
-    }
+    console.log("watch services")
+    const selectedIds = [...selectedValues]
+    console.log("ids", selectedIds)
+    setAmountFormState(selectedIds, services)
+  }, [watchServices])
+
+  React.useEffect(() => {
+    getRtos()
+    getServices()
+    getCustomers()
+    getBanks()
   }, [])
 
-  async function onSubmit(data) {
-    data.vehicleNo = data.vehicleNo.rto + " " + data.vehicleNo.number
-    data.services = data.services ? Array.from(data.services).join("/") : undefined
-    let formData = new FormData();
-
-    for (var key in data) {
-      formData.append(key, data[key]);
+  const getRtos = async () => {
+    try {
+      const { data } = await axios.get('/api/fetch/rtos')
+      setRtos(data.map(x => ({ label: x.rto, value: x.rto })))
+    } catch (err) {
+      console.log("error while fetching rtos", err)
     }
+  }
 
-    console.log("data submitted", formData)
+  const getCustomers = async () => {
+    try {
+      const { data } = await axios.get('/api/fetch/customers')
+      setCustomers(data.map(x => ({ label: x.customerId, value: x.customerId })))
+    } catch (err) {
+      console.log("error while fetching customers", err)
+    }
+  }
+
+  const getServices = async () => {
+    try {
+      const { data } = await axios.get('/api/fetch/services')
+      const services = data.map(x => ({ label: x.serviceId, value: x.serviceId, amount: x.amount }))
+      setServices(services)
+      if (defaultValues) {
+        setServicesFormState(defaultValues.services)
+        setAmountFormState([...defaultValues.services], services)
+      }
+    } catch (err) {
+      console.log("error while fetching services", err)
+    }
+  }
+
+  function setServicesFormState(serviceIds) {
+    setSelectedValues(serviceIds)
+    form.setValue("services", serviceIds)
+  }
+
+  function setAmountFormState(serviceIds, services) {
+    const totalAmount = services
+      .filter(x => serviceIds.includes(x.value))
+      .reduce((acc, curr) => acc + curr.amount, 0)
+    console.log("total amount", totalAmount)
+
+    form.setValue("amount", totalAmount)
+  }
+
+  const getBanks = async () => {
+    try {
+      const { data } = await axios.get('/api/fetch/banks')
+      setBanks(data.map(x => ({ label: x.bank, value: x.bankId })))
+    } catch (err) {
+      console.log("error while fetching services", err)
+    }
+  }
+
+  async function createTransaction(formData) {
     try {
       await axios.post('/api/transaction/entry', formData, {
         headers: {
@@ -241,6 +203,71 @@ export default function TransactionForm({ data, closeModal }) {
     }
   }
 
+  function refetch() {
+    switch (tableName) {
+      case 'All':
+        setAllTxnsQueryParams({ ...allTxnsQueryParams })
+        break;
+      case 'Ready':
+        setReadyTxnsQueryParams({ ...readyTxnsQueryParams })
+        break;
+      case 'Completed':
+        setCompletedTxnsQueryParams({ ...completedTxnsQueryParams })
+        break;
+    }
+  }
+
+  async function updateTransaction(id, formData) {
+    try {
+      await axios.put('/api/transaction/entry/' + id, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+      refetch()
+      toast({
+        title: "Transaction updated successfully"
+      })
+    } catch (error) {
+      toast({
+        title: "Oops! Something went wrong",
+        description: error.response.data.message
+      })
+    } finally {
+      closeModal()
+    }
+  }
+
+
+  function getSerializedValue(key, value) {
+    switch (key) {
+      case "services":
+        return value ? JSON.stringify(Array.from(value)) : null
+      case "vehicleNo":
+        return value ? JSON.stringify(value) : null
+      default:
+        return value ?? null
+    }
+  }
+
+  async function onSubmit(filledData) {
+    const formData = Object.entries(filledData).reduce((acc, curr) => {
+      const key = curr[0]
+      const value = getSerializedValue(key, curr[1])
+      if (value) {
+        acc.append(key, value)
+      }
+      return acc
+    }, new FormData())
+
+    console.log("data submitted", formData)
+    if (defaultValues) {
+      updateTransaction(defaultValues.entryId, formData)
+    } else {
+      createTransaction(formData)
+    }
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} >
@@ -255,8 +282,9 @@ export default function TransactionForm({ data, closeModal }) {
                   <ComboBox
                     form={form}
                     field={field}
-                    name="code"
-                    options={customers.map(x => ({ label: x.customerId, value: x.customerId }))}
+                    name="customerId"
+                    placeholder="code"
+                    options={customers}
                   />
                   <FormMessage />
                 </FormItem>
@@ -286,9 +314,9 @@ export default function TransactionForm({ data, closeModal }) {
                   <ComboBox
                     form={form}
                     field={field}
-                    name="fromRTO"
-                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
+                    name="vehicleNo.rto"
                     placeholder="RTO"
+                    options={rtos}
                   />
                   <FormMessage />
                 </FormItem>
@@ -301,7 +329,7 @@ export default function TransactionForm({ data, closeModal }) {
                 <FormItem>
                   <FormLabel>&nbsp;</FormLabel>
                   <FormControl>
-                    <Input placeholder="remaining number" disabled={!form.getValues("vehicleNo.rto")} {...field} />
+                    <Input placeholder="remaining number" disabled={!watchVehicleRTO} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -332,7 +360,7 @@ export default function TransactionForm({ data, closeModal }) {
                               </Badge>
                               <div className="hidden space-x-1 lg:flex">
                                 {
-                                  options
+                                  services
                                     .filter((option) => selectedValues.has(option.value))
                                     .map((option) => (
                                       <Badge
@@ -355,15 +383,15 @@ export default function TransactionForm({ data, closeModal }) {
                             <ScrollArea className="h-48">
                               <CommandGroup>
                                 {services.map((option) => {
-                                  const isSelected = selectedValues.has(option.serviceId)
+                                  const isSelected = selectedValues.has(option.value)
                                   return (
                                     <CommandItem
-                                      key={option.serviceId}
+                                      key={option.value}
                                       onSelect={() => {
                                         if (isSelected) {
-                                          selectedValues.delete(option.serviceId)
+                                          selectedValues.delete(option.value)
                                         } else {
-                                          selectedValues.add(option.serviceId)
+                                          selectedValues.add(option.value)
                                         }
                                         setSelectedValues(
                                           selectedValues.size ? selectedValues : new Set()
@@ -381,7 +409,7 @@ export default function TransactionForm({ data, closeModal }) {
                                       >
                                         <CheckIcon className={cn("h-4 w-4")} />
                                       </div>
-                                      <span>{option.serviceId}</span>
+                                      <span>{option.value}</span>
                                     </CommandItem>
                                   )
                                 })}
@@ -392,7 +420,7 @@ export default function TransactionForm({ data, closeModal }) {
                                 <CommandSeparator />
                                 <CommandGroup>
                                   <CommandItem
-                                    onSelect={() => setSelectedValues(new Set())}
+                                    onSelect={() => { setSelectedValues(new Set()); form.setValue("services", new Set()) }}
                                     className="justify-center text-center"
                                   >
                                     Clear filters
@@ -434,8 +462,8 @@ export default function TransactionForm({ data, closeModal }) {
                     form={form}
                     field={field}
                     name="fromRTO"
-                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
                     placeholder="RTO"
+                    options={rtos}
                   />
                   <FormMessage />
                 </FormItem>
@@ -451,8 +479,8 @@ export default function TransactionForm({ data, closeModal }) {
                     form={form}
                     field={field}
                     name="toRTO"
-                    options={rtos.map(x => ({ label: x.rto, value: x.rto }))}
                     placeholder="RTO"
+                    options={rtos}
                   />
                   <FormMessage />
                 </FormItem>
@@ -470,7 +498,8 @@ export default function TransactionForm({ data, closeModal }) {
                     form={form}
                     field={field}
                     name="bank"
-                    options={[{ "label": "ABC", "value": "abc" }, { "label": "DEF", "value": "def" }]}
+                    placeholder="bank"
+                    options={banks}
                   />
                   <FormMessage />
                 </FormItem>
@@ -696,7 +725,7 @@ export default function TransactionForm({ data, closeModal }) {
           />
           <FormField
             control={form.control}
-            name="panCardProof"
+            name="pancardProof"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Pan card proof</FormLabel>
@@ -705,7 +734,7 @@ export default function TransactionForm({ data, closeModal }) {
                     type="file"
                     accept=".pdf"
                     onChange={(e) => field.onChange(e.target.files[0])}
-                    id="panCardProof"
+                    id="pancardProof"
                   />
                 </FormControl>
                 <FormMessage />

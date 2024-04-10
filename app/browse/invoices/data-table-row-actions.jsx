@@ -13,20 +13,12 @@ import {
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React from "react";
-import TransactionForm from "../transaction-form";
 
-// TODO: make this a shared component maybe?
-export function DataTableRowActions({ row, tableName }) {
-  const vehicleNo = row.original.vehicleNo
-  const firstSpaceIdx = vehicleNo.indexOf(" ")
-  const [rto, number] = [vehicleNo.slice(0, firstSpaceIdx), vehicleNo.slice(firstSpaceIdx + 1)]
-  const transaction = {
-    ...row.original,
-    services: new Set(row.original.services.split('/')),
-    vehicleNo: { rto, number },
-    customerId: row.original.customerId.toString()
-  }
-  const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
+export function DataTableRowActions({
+  row,
+  tableName
+}) {
+  const [showDialog, setShowDialog] = React.useState(false)
 
   return (
     <>
@@ -41,19 +33,19 @@ export function DataTableRowActions({ row, tableName }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => { console.log(transaction, "selected row"); setShowTransactionFormDialog(true) }}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => { console.log(row.original, "selected row"); setShowDialog(true) }}>Edit</DropdownMenuItem>
           <DropdownMenuItem>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-[1200px]">
           <DialogHeader>
-            <DialogTitle>Edit transaction</DialogTitle>
+            <DialogTitle>Edit invoice</DialogTitle>
             <DialogDescription>
-              Update transaction to manage RTO process
+              Update invoice
             </DialogDescription>
           </DialogHeader>
-          <TransactionForm data={transaction} tableName={tableName} closeModal={() => setShowTransactionFormDialog(false)} />
+          Render invoices form
         </DialogContent>
       </Dialog>
     </>

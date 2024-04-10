@@ -9,8 +9,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import React from "react"
 
 export function Nav({ links, isCollapsed }) {
+  const [selected, setSelected] = React.useState(() => {
+    const savedIndex = localStorage.getItem("selectedNavLinkIndex");
+    return savedIndex ? parseInt(savedIndex, 10) : 0;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem("selectedNavLinkIndex", selected.toString());
+  }, [selected]);
+
   return (
     <div
       data-collapsed={isCollapsed}
@@ -22,12 +32,13 @@ export function Nav({ links, isCollapsed }) {
             <Tooltip key={index} delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link
-                  href="#"
+                  onClick={() => setSelected(index)}
+                  href={link.href}
                   className={cn(
-                    buttonVariants({ variant: link.variant, size: "icon" }),
+                    buttonVariants({ variant: selected === index ? "default" : "size", size: "icon" }),
                     "h-9 w-9",
                     link.variant === "default" &&
-                      "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
+                    "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
                   )}
                 >
                   <link.icon className="h-4 w-4" />
@@ -46,11 +57,12 @@ export function Nav({ links, isCollapsed }) {
           ) : (
             <Link
               key={index}
-              href="#"
+              href={link.href}
+              onClick={() => setSelected(index)}
               className={cn(
-                buttonVariants({ variant: link.variant, size: "sm" }),
+                buttonVariants({ variant: selected === index ? "default" : "size", size: "sm" }),
                 link.variant === "default" &&
-                  "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
+                "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
                 "justify-start"
               )}
             >
@@ -61,7 +73,7 @@ export function Nav({ links, isCollapsed }) {
                   className={cn(
                     "ml-auto",
                     link.variant === "default" &&
-                      "text-background dark:text-white"
+                    "text-background dark:text-white"
                   )}
                 >
                   {link.label}
