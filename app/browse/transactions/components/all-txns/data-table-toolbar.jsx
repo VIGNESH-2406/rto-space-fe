@@ -21,14 +21,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
-import { useAxios } from "@/config/axios.config";
+import  axios from "@/config/axios.new.config";
 
 export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => {
   const isFiltered = table.getState().columnFilters.length > 0
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [selectedStatus, setSelectedStatus] = React.useState(null)
-  const axios = useAxios()
 
   async function updateStatus() {
     try {

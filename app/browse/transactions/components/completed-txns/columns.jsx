@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "../all-txns/data-table-column-header"
 import { DataTableRowActions } from "../all-txns/data-table-row-actions"
 
-export const completedTxnsColumns = [
+const completedTxnsColumns = [
   {
     id: "select",
     header: ({ table }) => (
@@ -109,6 +109,8 @@ export const completedTxnsColumns = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    cell: ({ row }) => <DataTableRowActions row={row} tableName="Completed" />,
   },
 ]
+
+export default completedTxnsColumns

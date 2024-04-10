@@ -12,12 +12,30 @@ import {
 
 import { Button } from "@/components/ui/button"
 
-// import { DataTablePagination } from "../all-txns/data-table-pagination"
 import DataTable from "../data-table"
 import DataTableToolbar from "./data-table-toolbar"
 import { readyTxnsColumns } from "./columns"
 import { DataTablePagination } from "../data-table-pagination"
-import { useAxios } from "@/config/axios.config"
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import axios from "@/config/axios.new.config"
+
+const dataAtom = atom([])
+const readyTxnsQueryParamsAtom = atom({})
+const pageInfoAtom = atom({})
+
+export const readyTxnsPageAtom = atom(
+  (get) => get(readyTxnsQueryParamsAtom),
+  async (get, set, update) => {
+    set(readyTxnsQueryParamsAtom, update)
+    const params = get(readyTxnsQueryParamsAtom)
+
+    const { data: response } = await axios.get(`/api/transaction/entry?page=${params.page}&size=${params.size}&status=READY`)
+    const { totalPages, totalItems, isFirst, isLast, page, size } = response
+
+    set(dataAtom, response.items)
+    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
+  }
+)
 
 export default function ReadyTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
@@ -25,32 +43,13 @@ export default function ReadyTxnsDataTable() {
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [columns, setColumns] = React.useState(readyTxnsColumns);
-  const [pagedData, setPagedData] = React.useState(null)
-  const [data, setData] = React.useState([])
-  const [pageInfo, setPageInfo] = React.useState({})
-  const axios = useAxios()
-
-  async function getTransactions(pageNumber, pageSize) {
-    const { data } = await axios.get(`/api/transaction/entry?page=${pageNumber}&size=${pageSize}&status=READY`)
-    setPagedData(data)
-  }
+  const setQueryParams = useSetAtom(readyTxnsPageAtom)
+  const data = useAtomValue(dataAtom)
+  const pageInfo = useAtomValue(pageInfoAtom)
 
   React.useEffect(() => {
-    getTransactions(0, 10)
+    setQueryParams({ page: 0, size: 10 })
   }, [])
-
-  React.useEffect(() => {
-    if (!pagedData) return;
-    setData(pagedData.items)
-    setPageInfo({
-      page: pagedData.page,
-      size: pagedData.size,
-      isFirst: pagedData.isFirst,
-      isLast: pagedData.isLast,
-      totalPages: pagedData.totalPages,
-      totalItems: pagedData.totalItems
-    })
-  }, [pagedData])
 
   const table = useReactTable({
     data,
@@ -71,7 +70,7 @@ export default function ReadyTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => getTransactions(pageNumber, Number(pageSize)))
+  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ page: pageNumber, size: Number(pageSize) }))
 
   return (
     <div className="w-full">

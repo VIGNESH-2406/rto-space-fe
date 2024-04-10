@@ -53,20 +53,20 @@ export default function Browse({ children }) {
                 {
                   title: "Transactions",
                   label: "",
+                  href: "/browse/transactions",
                   icon: BadgeIndianRupee,
-                  variant: "default",
                 },
                 {
                   title: "Deliveries",
                   label: "",
+                  href: "#",
                   icon: Truck,
-                  variant: "ghost",
                 },
                 {
                   title: "Invoices",
                   label: "",
+                  href: "/browse/invoices",
                   icon: ReceiptText,
-                  variant: "ghost",
                 },
               ]}
             />

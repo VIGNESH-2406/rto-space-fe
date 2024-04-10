@@ -15,40 +15,37 @@ import { DataTablePagination } from "../data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import columns from "./columns"
 import DataTable from "../data-table"
-import { useAxios } from "@/config/axios.config"
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import axios from "@/config/axios.new.config"
+
+const dataAtom = atom([])
+const allTxnsQueryParamsAtom = atom({})
+const pageInfoAtom = atom({})
+
+export const allTxnsPageAtom = atom(
+  (get) => get(allTxnsQueryParamsAtom),
+  async (get, set, update) => {
+    set(allTxnsQueryParamsAtom, update)
+    const params = get(allTxnsQueryParamsAtom)
+
+    const { data: response } = await axios.get(`/api/transaction/entry?page=${params.page}&size=${params.size}`)
+    const { totalPages, totalItems, isFirst, isLast, page, size } = response
+
+    set(dataAtom, response.items)
+    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
+  }
+)
 
 export default function AllTxnsDataTable() {
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState({})
+  const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const [pagedData, setPagedData] = React.useState(null)
-  const [data, setData] = React.useState([])
-  const [pageInfo, setPageInfo] = React.useState({})
-  const axios = useAxios()
+  const setPagedData = useSetAtom(allTxnsPageAtom)
+  const data = useAtomValue(dataAtom)
+  const pageInfo = useAtomValue(pageInfoAtom)
 
-  async function getTransactions(pageNumber, pageSize) {
-    const { data } = await axios.get(`/api/transaction/entry?page=${pageNumber}&size=${pageSize}`)
-    setPagedData(data)
-  }
-
-  React.useEffect(() => {
-    getTransactions(0, 10)
-  }, [])
-
-  React.useEffect(() => {
-    if (!pagedData) return;
-    setData(pagedData.items)
-    setPageInfo({
-      page: pagedData.page,
-      size: pagedData.size,
-      isFirst: pagedData.isFirst,
-      isLast: pagedData.isLast,
-      totalPages: pagedData.totalPages,
-      totalItems: pagedData.totalItems
-    })
-  }, [pagedData])
+  React.useEffect(() => { setPagedData({ page: 0, size: 10 }) }, [])
 
   const table = useReactTable({
     data,
@@ -73,7 +70,7 @@ export default function AllTxnsDataTable() {
   })
 
   function updater(pageNumber, pageSize) {
-    getTransactions(pageNumber, Number(pageSize))
+    setPagedData({ page: pageNumber, size: Number(pageSize) })
   }
 
   const Pagination = DataTablePagination(table)(updater)

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useToast } from "@/components/ui/use-toast"
-import { useAxios } from '@/config/axios.config';
+import axios from '@/config/axios.new.config';
 
 // Define Zod schema for form validation
 const schema = z.object({
@@ -27,7 +27,6 @@ const schema = z.object({
 const Register = () => {
   const router = useRouter();
   const { toast } = useToast()
-  const axios = useAxios();
 
   const { handleSubmit, register, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
