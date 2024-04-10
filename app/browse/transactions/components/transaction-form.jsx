@@ -38,12 +38,9 @@ import { Separator } from "@/components/ui/separator"
 
 import React from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useAtom } from 'jotai'
-import { allTxnsPageAtom } from "./all-txns/data-table"
-import { readyTxnsPageAtom } from "./ready-txns/data-table"
-import { completedTxnsPageAtom } from "./completed-txns/data-table"
 
 import axios from '@/config/axios.new.config'
+import { useRefetch } from "@/hooks/use-refetch"
 
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
@@ -108,9 +105,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   const [services, setServices] = React.useState([])
   const [banks, setBanks] = React.useState([])
   const [rtos, setRtos] = React.useState([])
-  const [allTxnsQueryParams, setAllTxnsQueryParams] = useAtom(allTxnsPageAtom)
-  const [readyTxnsQueryParams, setReadyTxnsQueryParams] = useAtom(readyTxnsPageAtom)
-  const [completedTxnsQueryParams, setCompletedTxnsQueryParams] = useAtom(completedTxnsPageAtom)
+  const refetch = useRefetch()
 
   const [selectedValues, setSelectedValues] = React.useState(new Set())
 
@@ -190,6 +185,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
           'Content-Type': 'multipart/form-data',
         }
       });
+      refetch(tableName)
       toast({
         title: "Transaction created successfully"
       })
@@ -203,20 +199,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
     }
   }
 
-  function refetch() {
-    switch (tableName) {
-      case 'All':
-        setAllTxnsQueryParams({ ...allTxnsQueryParams })
-        break;
-      case 'Ready':
-        setReadyTxnsQueryParams({ ...readyTxnsQueryParams })
-        break;
-      case 'Completed':
-        setCompletedTxnsQueryParams({ ...completedTxnsQueryParams })
-        break;
-    }
-  }
-
   async function updateTransaction(id, formData) {
     try {
       await axios.put('/api/transaction/entry/' + id, formData, {
@@ -224,7 +206,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
           'Content-Type': 'multipart/form-data',
         }
       });
-      refetch()
+      refetch(tableName)
       toast({
         title: "Transaction updated successfully"
       })

@@ -126,7 +126,7 @@ export default function DataTableToolbar({ table }) {
             Add a new transaction to manage RTO process.
           </DialogDescription>
         </DialogHeader>
-        <TransactionForm closeModal={() => setShowTransactionFormDialog(false)} />
+        <TransactionForm tableName="Ready" closeModal={() => setShowTransactionFormDialog(false)} />
       </DialogContent>
     </Dialog>
   </>

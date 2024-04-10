@@ -14,6 +14,10 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React from "react";
 import TransactionForm from "../transaction-form";
+import axios from '@/config/axios.new.config'
+import { useToast } from "@/components/ui/use-toast";
+import { CircleCheck } from 'lucide-react';
+import { useRefetch } from "@/hooks/use-refetch";
 
 // TODO: make this a shared component maybe?
 export function DataTableRowActions({ row, tableName }) {
@@ -27,6 +31,8 @@ export function DataTableRowActions({ row, tableName }) {
     customerId: row.original.customerId.toString()
   }
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
+  const { toast } = useToast()
+  const refetch = useRefetch()
 
   return (
     <>
@@ -41,8 +47,27 @@ export function DataTableRowActions({ row, tableName }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => { console.log(transaction, "selected row"); setShowTransactionFormDialog(true) }}>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowTransactionFormDialog(true)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={async () => {
+            try {
+              await axios.delete('/api/transaction/entry/' + transaction.entryId)
+              refetch(tableName)
+              toast({
+                title: (
+                  <div className="flex items-center">
+                    <CircleCheck className="text-white bg-green-500 rounded-full" />
+                    <span className="ml-2">Transaction deleted successfully</span>
+                  </div>
+                )
+              })
+            } catch (err) {
+              toast({
+                variant: "destructive",
+                title: "Oops! Something went wrong",
+                description: "There was a problem with your request"
+              })
+            }
+          }}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>
