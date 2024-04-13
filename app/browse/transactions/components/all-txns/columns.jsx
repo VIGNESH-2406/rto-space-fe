@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
+import { Button } from "@/components/ui/button"
 
 const columns = [
   {
@@ -31,9 +32,28 @@ const columns = [
     enableHiding: false,
   },
   {
+    accessorKey: "entryId",
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Id</span>
+      </Button>
+    ),
+    cell: ({ row }) => <div className="w-[120px] font-medium">{row.getValue("entryId")}</div>,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "customerName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Customer Name" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Customer name</span>
+      </Button>
     ),
     cell: ({ row }) => <div className="w-[120px]">{row.getValue("customerName")}</div>,
     enableSorting: false,
@@ -41,13 +61,18 @@ const columns = [
   },
   {
     accessorKey: "vehicleNo",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Vehicle No." />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Vehicle no.</span>
+      </Button>
     ),
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
+          <span className="max-w-[500px] truncate">
             {row.getValue("vehicleNo")}
           </span>
         </div>
@@ -56,8 +81,13 @@ const columns = [
   },
   {
     accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Status</span>
+      </Button>
     ),
     cell: ({ row }) => {
       return (
@@ -72,8 +102,13 @@ const columns = [
   },
   {
     accessorKey: "services",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Services" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Services</span>
+      </Button>
     ),
     cell: ({ row }) => {
       return (

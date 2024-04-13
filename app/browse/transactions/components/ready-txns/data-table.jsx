@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button"
 
 import DataTable from "../data-table"
 import DataTableToolbar from "./data-table-toolbar"
-import { readyTxnsColumns } from "./columns"
-import { DataTablePagination } from "../data-table-pagination"
+import columns from "./columns"
+import { DataTablePagination } from "@/components/data-table-pagination"
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
 
@@ -29,7 +29,7 @@ export const readyTxnsPageAtom = atom(
     set(readyTxnsQueryParamsAtom, update)
     const params = get(readyTxnsQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/transaction/entry?page=${params.page}&size=${params.size}&status=READY`)
+    const { data: response } = await axios.get(`/api/transactions?page=${params.page}&size=${params.size}&status=READY`)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)
@@ -42,7 +42,6 @@ export default function ReadyTxnsDataTable() {
   const [columnFilters, setColumnFilters] = React.useState([])
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [columns, setColumns] = React.useState(readyTxnsColumns);
   const setQueryParams = useSetAtom(readyTxnsPageAtom)
   const data = useAtomValue(dataAtom)
   const pageInfo = useAtomValue(pageInfoAtom)

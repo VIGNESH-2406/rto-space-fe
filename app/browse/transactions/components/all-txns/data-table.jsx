@@ -11,7 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { DataTablePagination } from "../data-table-pagination"
+import { DataTablePagination } from "@/components/data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import columns from "./columns"
 import DataTable from "../data-table"
@@ -28,7 +28,7 @@ export const allTxnsPageAtom = atom(
     set(allTxnsQueryParamsAtom, update)
     const params = get(allTxnsQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/transaction/entry?page=${params.page}&size=${params.size}`)
+    const { data: response } = await axios.get(`/api/transactions?page=${params.page}&size=${params.size}`)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)

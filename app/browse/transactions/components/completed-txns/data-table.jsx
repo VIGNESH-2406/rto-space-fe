@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 
 import columns from "./columns";
-import { DataTablePagination } from "../data-table-pagination";
+import { DataTablePagination } from "@/components/data-table-pagination";
 import React from "react";
 import axios from "@/config/axios.new.config";
 import { DataTableToolbar } from "./data-table-toolbar";
@@ -28,7 +28,7 @@ export const completedTxnsPageAtom = atom(
     set(completedTxnsQueryParamsAtom, update)
     const params = get(completedTxnsQueryParamsAtom)
 
-    let url = "/api/transaction/entry?status=COMPLETED"
+    let url = "/api/transactions?status=COMPLETED"
     const queryString = objectToQueryString(params)
     if (queryString.trim().length) {
       url += `&${queryString}`
@@ -113,7 +113,7 @@ export default function CompletedTxnsDataTable() {
           }
           setIsLoading(true);
           try {
-            const { data } = await axios.post('/api/transaction/pdf', {
+            const { data } = await axios.post('/api/transactions/pdf', {
               transactionIds: entryIds,
               customerId: customerIds[0]
             })
