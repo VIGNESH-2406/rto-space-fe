@@ -21,7 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
-import  axios from "@/config/axios.new.config";
+import axios from "@/config/axios.new.config";
 
 export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => {
   const isFiltered = table.getState().columnFilters.length > 0
@@ -31,7 +31,7 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
 
   async function updateStatus() {
     try {
-      await axios.patch('/api/transaction/entry/status', {
+      await axios.patch('/api/transactions/status', {
         ids: table.getFilteredSelectedRowModel().rows.map(x => x.original.entryId),
         status: selectedStatus.value
       })
@@ -57,6 +57,14 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
     {
       value: "CREATED",
       label: "Created"
+    },
+    {
+      value: "DELIVERED",
+      label: "Delivered"
+    },
+    {
+      value: "RETURNED",
+      label: "Returned"
     },
     {
       value: "COMPLETED",

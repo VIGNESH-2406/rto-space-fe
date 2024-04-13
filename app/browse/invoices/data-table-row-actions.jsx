@@ -13,6 +13,8 @@ import {
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import React from "react";
+import { Pencil, Trash2, Eye } from 'lucide-react';
+import { InvoiceForm } from "./invoice-form";
 
 export function DataTableRowActions({ row }) {
   const [showDialog, setShowDialog] = React.useState(false)
@@ -30,19 +32,31 @@ export function DataTableRowActions({ row }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => { console.log(row.original, "selected row"); setShowDialog(true) }}>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => { console.log(row.original, "selected row"); setShowDialog(true) }}>
+            <Pencil className="size-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Trash2 className="size-4 mr-2" />
+            Delete
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Eye className="size-4 mr-2" />
+            <a href={row.original.invoicePdf} target="_blank">
+              View
+            </a>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-[1200px]">
+        <DialogContent className="sm:max-w-[1000px]">
           <DialogHeader>
-            <DialogTitle>Edit invoice</DialogTitle>
+            <DialogTitle>Edit invoice #{row.original.invoiceNo}</DialogTitle>
             <DialogDescription>
               Update invoice
             </DialogDescription>
           </DialogHeader>
-          Render invoices form
+          <InvoiceForm data={row.original} closeModal={() => setShowDialog(false)} />
         </DialogContent>
       </Dialog>
     </>

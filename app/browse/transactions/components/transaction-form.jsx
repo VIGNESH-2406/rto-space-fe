@@ -164,7 +164,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
     const totalAmount = services
       .filter(x => serviceIds.includes(x.value))
       .reduce((acc, curr) => acc + curr.amount, 0)
-    console.log("total amount", totalAmount)
 
     form.setValue("amount", totalAmount)
   }
@@ -180,7 +179,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   async function createTransaction(formData) {
     try {
-      await axios.post('/api/transaction/entry', formData, {
+      await axios.post('/api/transactions', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -190,6 +189,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
         title: "Transaction created successfully"
       })
     } catch (error) {
+      console.log("error while creating transaction", error)
       toast({
         title: "Oops! Something went wrong",
         description: error.response.data.message
@@ -201,7 +201,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   async function updateTransaction(id, formData) {
     try {
-      await axios.put('/api/transaction/entry/' + id, formData, {
+      await axios.put('/api/transactions/' + id, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -254,7 +254,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} >
         <div className="space-y-8 p-4 max-h-[600px] overflow-scroll">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-8">
             <FormField
               control={form.control}
               name="customerId"
@@ -285,8 +285,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 </FormItem>
               )}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="vehicleNo.rto"
@@ -317,8 +315,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 </FormItem>
               )}
             />
-          </div>
-          <div className="grid grid-cols-2">
             <FormField
               control={form.control}
               name="services"
@@ -328,7 +324,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                   <FormControl>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="flex h-9 border-dashed w-[500px]">
+                        <Button variant="outline" size="sm" className="flex h-9 border-dashed w-[550px]">
                           <PlusCircledIcon className="mr-2 h-4 w-4" />
                           <p className="text-muted-foreground">Services</p>
                           {selectedValues.size > 0 && (
@@ -426,14 +422,12 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="fromRTO"
@@ -468,8 +462,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 </FormItem>
               )}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="bank"
@@ -500,8 +492,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 </FormItem>
               )}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="letterNumber"
@@ -556,23 +546,75 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 </FormItem>
               )}
             />
+            {defaultValues && <> <FormField
+              control={form.control}
+              name="challanPayment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Challan payment</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+              <FormField
+                control={form.control}
+                name="challanNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Challan number</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="officerPayment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Officer payment</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="reference"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reference</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> </>}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <Separator />
           <div className="grid grid-cols-2 gap-4">
             <FormField

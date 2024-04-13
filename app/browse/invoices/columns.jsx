@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableRowActions } from "./data-table-row-actions"
+import { format } from "date-fns"
 
 const columns = [
   {
@@ -61,6 +62,22 @@ const columns = [
       return (
         <div className="flex w-[120px] items-center">
           <span>{row.getValue("totalVehicles")}</span>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: "invoiceDate",
+    header: () => (
+      <div>Invoice date</div>
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex w-[120px] items-center">
+          <span>{format(row.getValue("invoiceDate"), "dd LLL, y")}</span>
         </div>
       )
     },

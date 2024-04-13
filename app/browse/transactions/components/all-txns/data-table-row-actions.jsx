@@ -73,7 +73,7 @@ export function DataTableRowActions({ row, tableName }) {
       <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>
         <DialogContent className="sm:max-w-[1200px]">
           <DialogHeader>
-            <DialogTitle>Edit transaction</DialogTitle>
+            <DialogTitle>Edit transaction #{transaction.entryId}</DialogTitle>
             <DialogDescription>
               Update transaction to manage RTO process
             </DialogDescription>

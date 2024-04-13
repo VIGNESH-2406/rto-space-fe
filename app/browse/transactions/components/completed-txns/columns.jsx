@@ -3,6 +3,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "../all-txns/data-table-column-header"
 import { DataTableRowActions } from "../all-txns/data-table-row-actions"
+import { Button } from "@/components/ui/button"
 
 const completedTxnsColumns = [
   {
@@ -28,9 +29,28 @@ const completedTxnsColumns = [
     enableHiding: false,
   },
   {
+    accessorKey: "entryId",
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Id</span>
+      </Button>
+    ),
+    cell: ({ row }) => <div className="w-[120px] font-medium">{row.getValue("entryId")}</div>,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "customerName",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Customer Name" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Customer name</span>
+      </Button>
     ),
     cell: ({ row }) => <div className="w-[120px]">{row.getValue("customerName")}</div>,
     enableSorting: false,
@@ -38,8 +58,13 @@ const completedTxnsColumns = [
   },
   {
     accessorKey: "vehicleNo",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Vehicle No." />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Vehicle no.</span>
+      </Button>
     ),
     cell: ({ row }) => {
 
@@ -54,12 +79,17 @@ const completedTxnsColumns = [
   },
   {
     accessorKey: "toRTO",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="To RTO" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>To RTO</span>
+      </Button>
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex w-[120px] items-center">
+        <div className="flex w-[80px] items-center">
           <span>{row.getValue("toRTO")}</span>
         </div>
       )
@@ -70,8 +100,13 @@ const completedTxnsColumns = [
   },
   {
     accessorKey: "services",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Services" />
+    header: () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-3 h-8 data-[state=open]:bg-accent">
+        <span>Services</span>
+      </Button>
     ),
     cell: ({ row }) => {
       return (
