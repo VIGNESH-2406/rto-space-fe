@@ -13,13 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAtom } from 'jotai';
-import { tokenWithPersistenceAtom } from "@/lib/authAtom";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export function UserNav({ isCollapsed }) {
-  const [_, setToken] = useAtom(tokenWithPersistenceAtom);
   const router = useRouter();
 
   return (
@@ -50,8 +47,7 @@ export function UserNav({ isCollapsed }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => {
-          // setToken(null);
-          localStorage.removeItem('userToken')
+          localStorage.clear()
           router.replace('/login');
         }}>
           Log out

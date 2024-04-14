@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { LoaderCircle } from 'lucide-react';
 import { atom, useAtomValue, useAtom } from 'jotai'
+import { objectToQueryString } from "@/lib/utils";
 
 const dataAtom = atom([])
 const completedTxnsQueryParamsAtom = atom({})
@@ -40,21 +41,6 @@ export const completedTxnsPageAtom = atom(
     set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
   }
 )
-
-function objectToQueryString(obj) {
-  if (typeof obj !== 'object' || obj === null) {
-    return '';
-  }
-
-  const keyValuePairs = [];
-  for (const key in obj) {
-    if (typeof obj[key] === 'string' && obj[key].trim() !== '') {
-      keyValuePairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`);
-    }
-  }
-
-  return keyValuePairs.join('&');
-}
 
 export default function CompletedTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
