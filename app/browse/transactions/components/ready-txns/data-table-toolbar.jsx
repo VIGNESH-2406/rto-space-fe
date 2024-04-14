@@ -21,32 +21,37 @@ import {
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
 import { Input } from "@/components/ui/input";
+import axios from '@/config/axios.new.config'
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const deliveryAgents = [
-  { "label": "Emily Johnson", "value": "Emily Johnson" },
-  { "label": "Michael Smith", "value": "Michael Smith" },
-  { "label": "Jessica Williams", "value": "Jessica Williams" },
-  { "label": "Christopher Brown", "value": "Christopher Brown" },
-  { "label": "Amanda Davis", "value": "Amanda Davis" }
-]
-
-const rtos = [
-  { "label": "MH 01", "value": "MH01" },
-  { "label": "MH 02", "value": "MH02" },
-  { "label": "MH 03", "value": "MH03" },
-  { "label": "MH 04", "value": "MH04" },
-  { "label": "MH 05", "value": "MH05" },
-  { "label": "MH 10", "value": "MH10" }
-]
-
-export default function DataTableToolbar({ table }) {
+export default function DataTableToolbar({ updaterFunc }) {
 
   const [openRtoSearch, setOpenRtoSearch] = React.useState(false)
-  const [openDeliveryAgentSearch, setOpenDeliveryAgentSearch] = React.useState(false)
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
-  const isFiltered = table.getState().columnFilters.length > 0
   const [deliveryAgent, setDeliveryAgent] = React.useState()
   const [rto, setRto] = React.useState()
+  const [rtos, setRtos] = React.useState([])
+
+  React.useEffect(() => {
+    async function getRtos() {
+      try {
+        const { data } = await axios.get('/api/fetch/rtos')
+        setRtos(data.map(x => ({ label: x.rto, value: x.rto })))
+      } catch (err) {
+        console.log("error while fetching rtos", err)
+      }
+    }
+    getRtos()
+  }, [])
+
+  React.useEffect(() => {
+    console.log("selected rto", rto)
+    if (rto) {
+      updaterFunc(prev => ({ ...prev, page: '0', toRTO: rto.value }))
+    } else {
+      updaterFunc(prev => ({ ...prev, page: '0', toRTO: '' }))
+    }
+  }, [rto])
 
   return <>
     <div className="flex justify-between py-4">
@@ -58,11 +63,10 @@ export default function DataTableToolbar({ table }) {
         <span className="ml-4 text-sm"> Create Transaction </span>
       </Button>
       <div className="flex items-center space-x-4 text-sm">
-        {isFiltered && (
+        {rto && (
           <Button
             variant="ghost"
             onClick={() => {
-              table.resetColumnFilters()
               setRto(null)
               setDeliveryAgent(null)
             }}
@@ -88,34 +92,35 @@ export default function DataTableToolbar({ table }) {
           <PopoverContent className="w-[200px] p-0">
             <Command>
               <CommandInput placeholder={`Search RTO`} />
-              <CommandEmpty>No data found.</CommandEmpty>
-              <CommandGroup>
-                {rtos.map((item) => (
-                  <CommandItem
-                    key={item.value}
-                    onSelect={() => {
-                      setRto(item)
-                      table.getColumn("toRTO").setFilterValue(item.value)
-                      setOpenRtoSearch(false)
-                    }}
-                  >
-                    {item.label}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        rto?.value === item.value
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              <ScrollArea className="h-48">
+                <CommandEmpty>No data found.</CommandEmpty>
+                <CommandGroup>
+                  {rtos.map((item) => (
+                    <CommandItem
+                      key={item.value}
+                      onSelect={() => {
+                        setRto(item)
+                        setOpenRtoSearch(false)
+                      }}
+                    >
+                      {item.label}
+                      <CheckIcon
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          rto?.value === item.value
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </ScrollArea>
             </Command>
           </PopoverContent>
         </Popover>
         <Separator orientation="vertical" />
-         <Input className="w-52" placeholder="assign delivery agent"  />
+        <Input className="w-52" placeholder="assign delivery agent" onChange={e => setDeliveryAgent(e.target.value)} />
       </div>
     </div>
     <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>

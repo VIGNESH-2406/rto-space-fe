@@ -15,9 +15,28 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { atom, useAtom } from 'jotai'
+import React from "react";
+
+export const userInfoAtom = atom({})
 
 export function UserNav({ isCollapsed }) {
   const router = useRouter();
+  const [userInfo, setUserInfo] = useAtom(userInfoAtom)
+
+  async function getUserInfo() {
+    const data = {
+      name: 'Hrishikesh Mhatre',
+      access: 1,
+      email: 'example@test.com'
+    }
+    data['initials'] = data.name.split(" ").map(x => x[0]).join("")
+    setUserInfo(data)
+  }
+
+  React.useEffect(() => {
+    getUserInfo()
+  }, [])
 
   return (
     <DropdownMenu>
@@ -31,17 +50,17 @@ export function UserNav({ isCollapsed }) {
         }>
           <Avatar className="h-8 w-8">
             <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-            <AvatarFallback>HM</AvatarFallback>
+            <AvatarFallback>{userInfo?.initials}</AvatarFallback>
           </Avatar>
-          <span className={cn("ml-4", isCollapsed && "hidden")}>Hrishikesh Mhatre</span>
+          <span className={cn("ml-4", isCollapsed && "hidden")}>{userInfo?.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Hrishikesh Mhatre</p>
+            <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              exy@example.com
+              {userInfo?.email}
             </p>
           </div>
         </DropdownMenuLabel>
