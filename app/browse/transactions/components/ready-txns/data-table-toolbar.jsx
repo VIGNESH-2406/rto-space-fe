@@ -31,12 +31,12 @@ const deliveryAgents = [
 ]
 
 const rtos = [
-  { "label": "MH 01", "value": "MH 01" },
-  { "label": "MH 02", "value": "MH 02" },
-  { "label": "MH 03", "value": "MH 03" },
-  { "label": "MH 04", "value": "MH 04" },
-  { "label": "MH 05", "value": "MH 05" },
-  { "label": "MH 10", "value": "MH 10" }
+  { "label": "MH 01", "value": "MH01" },
+  { "label": "MH 02", "value": "MH02" },
+  { "label": "MH 03", "value": "MH03" },
+  { "label": "MH 04", "value": "MH04" },
+  { "label": "MH 05", "value": "MH05" },
+  { "label": "MH 10", "value": "MH10" }
 ]
 
 export default function DataTableToolbar({ table }) {

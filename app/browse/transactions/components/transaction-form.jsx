@@ -189,7 +189,6 @@ export default function TransactionForm({ data, tableName, closeModal }) {
         title: "Transaction created successfully"
       })
     } catch (error) {
-      console.log("error while creating transaction", error)
       toast({
         title: "Oops! Something went wrong",
         description: error.response.data.message
@@ -803,7 +802,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
           />
         </div>
         <div className="flex justify-end gap-4 relative bottom-0 mt-4">
-          <Button variant="outline" onClick={() => closeModal()}>
+          <Button variant="outline" onClick={(e) => { e.preventDefault(); closeModal() }}>
             Cancel
           </Button>
           <Button type="submit">Save</Button>

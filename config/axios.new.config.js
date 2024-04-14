@@ -23,7 +23,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use((response) => response, (error) => {
   if (error.response.status === 401) {
-    localStorage.removeItem('userToken')
+    localStorage.clear()
   }
   return Promise.reject(error)
 })

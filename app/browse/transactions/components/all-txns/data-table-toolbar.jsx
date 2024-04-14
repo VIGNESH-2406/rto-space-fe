@@ -22,12 +22,16 @@ import {
 } from "@/components/ui/popover"
 import TransactionForm from "../transaction-form";
 import axios from "@/config/axios.new.config";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input";
 
-export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => {
-  const isFiltered = table.getState().columnFilters.length > 0
+export const DataTableToolbar = ({ table, updaterFunc }) => {
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [selectedStatus, setSelectedStatus] = React.useState(null)
+  const [openStatusSearch, setOpenStatusSearch] = React.useState(false)
+  const [statusFilter, setStatusFilter] = React.useState()
 
   async function updateStatus() {
     try {
@@ -36,7 +40,7 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
         status: selectedStatus.value
       })
       table.toggleAllPageRowsSelected(false)
-      updaterFunc(page, size)
+      updaterFunc(prev => ({ ...prev }))
     } catch (err) {
       // TODO: add a toaster here
       console.log("error while updating status", err)
@@ -48,6 +52,14 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
       updateStatus()
     }
   }, [selectedStatus])
+
+  React.useEffect(() => {
+    if (statusFilter) {
+      updaterFunc(prev => ({ ...prev, page: '0', status: statusFilter.value }))
+    } else {
+      updaterFunc(prev => ({ ...prev, page: '0', status: '' }))
+    }
+  }, [statusFilter])
 
   const statuses = [
     {
@@ -83,6 +95,18 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
           <span className="ml-4 text-sm"> Create Transaction </span>
         </Button>
         <div className="flex items-center space-x-2">
+          {statusFilter && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setStatusFilter(null)
+              }}
+              className="h-8 px-2 lg:px-3"
+            >
+              Reset
+              <Cross2Icon className="ml-2 h-4 w-4" />
+            </Button>
+          )}
           {table.getColumn("status") && (
             <div className="flex items-center space-x-4">
               <Popover open={open} onOpenChange={setOpen} >
@@ -93,7 +117,7 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
                     className=" h-8 w-[150px] justify-start"
                     disabled={!table.getFilteredSelectedRowModel().rows.length}
                   >
-                    {selectedStatus ? <>{selectedStatus.label}</> : <>+ Update status</>}
+                    + Update status
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-0" side="right" align="start">
@@ -125,16 +149,53 @@ export const DataTableToolbar = (table) => (updaterFunc) => ({ page, size }) => 
               </Popover>
             </div>
           )}
-          {isFiltered && (
-            <Button
-              variant="ghost"
-              onClick={() => table.resetColumnFilters()}
-              className="h-8 px-2 lg:px-3"
-            >
-              Reset
-              <Cross2Icon className="ml-2 h-4 w-4" />
-            </Button>
-          )}
+          <Popover open={openStatusSearch} onOpenChange={setOpenStatusSearch}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-label="select status"
+                aria-expanded={openStatusSearch}
+                className="flex-1 h-8 justify-between max-w-[200px]"
+              >
+                {statusFilter ? statusFilter.label : `Select status`}
+                <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandInput placeholder="Filter by status" />
+                <CommandEmpty>No data found.</CommandEmpty>
+                <CommandGroup>
+                  {statuses.map((item) => (
+                    <CommandItem
+                      key={item.value}
+                      onSelect={() => {
+                        setStatusFilter(item)
+                        setOpenStatusSearch(false)
+                      }}
+                    >
+                      {item.label}
+                      <CheckIcon
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          statusFilter?.value === item.value
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="text"
+            placeholder="search customer"
+            className="w-52"
+            onChange={(e) => updaterFunc(prev => ({ ...prev, page: '0', keyword: e.target.value }))}
+          />
         </div>
       </div>
       <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>

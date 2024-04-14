@@ -15,8 +15,9 @@ import { DataTablePagination } from "@/components/data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import columns from "./columns"
 import DataTable from "../data-table"
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtomValue, useSetAtom, useAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
+import { objectToQueryString } from "@/lib/utils"
 
 const dataAtom = atom([])
 const allTxnsQueryParamsAtom = atom({})
@@ -28,7 +29,13 @@ export const allTxnsPageAtom = atom(
     set(allTxnsQueryParamsAtom, update)
     const params = get(allTxnsQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/transactions?page=${params.page}&size=${params.size}`)
+    let url = "/api/transactions?"
+    const queryString = objectToQueryString(params)
+    if (queryString.trim().length) {
+      url += queryString
+    }
+
+    const { data: response } = await axios.get(url)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)
@@ -41,11 +48,11 @@ export default function AllTxnsDataTable() {
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const setPagedData = useSetAtom(allTxnsPageAtom)
+  const [queryParams, setQueryParams] = useAtom(allTxnsPageAtom)
   const data = useAtomValue(dataAtom)
   const pageInfo = useAtomValue(pageInfoAtom)
 
-  React.useEffect(() => { setPagedData({ page: 0, size: 10 }) }, [])
+  React.useEffect(() => { setQueryParams({ page: '0', size: '10' }) }, [])
 
   const table = useReactTable({
     data,
@@ -70,15 +77,14 @@ export default function AllTxnsDataTable() {
   })
 
   function updater(pageNumber, pageSize) {
-    setPagedData({ page: pageNumber, size: Number(pageSize) })
+    setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' })
   }
 
   const Pagination = DataTablePagination(table)(updater)
-  const Toolbar = DataTableToolbar(table)(updater)
 
   return (
     <div className="space-y-4">
-      <Toolbar {...pageInfo} />
+      <DataTableToolbar table={table} updaterFunc={setQueryParams} />
       <DataTable table={table} columns={columns} />
       <Pagination {...pageInfo} />
     </div>
