@@ -14,6 +14,8 @@ import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import ProtectedRoute from "@/components/protected-route"
 import { UserNav } from "@/components/user-nav"
+import Image from 'next/image'
+import logo from '@/public/logo.jpg'
 
 export default function Browse({ children }) {
   const [defaultLayout, setDefaultLayout] = React.useState([20, 80]);
@@ -44,6 +46,7 @@ export default function Browse({ children }) {
             onExpand={() => setIsCollapsed(false)}
             className={cn(isCollapsed && "min-w-[50px] transition-all duration-300 ease-in-out")}
           >
+            <Image src={logo} height={120} width={120} />
             <div className={cn("flex h-[52px] pt-2 pl-2", isCollapsed ? 'h-[52px] w-[50px]' : 'px-2')}>
               <UserNav isCollapsed={isCollapsed} />
             </div>

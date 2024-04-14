@@ -18,6 +18,7 @@ import columns from "./columns"
 import { DataTablePagination } from "@/components/data-table-pagination"
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
+import { objectToQueryString } from "@/lib/utils"
 
 const dataAtom = atom([])
 const readyTxnsQueryParamsAtom = atom({})
@@ -29,7 +30,13 @@ export const readyTxnsPageAtom = atom(
     set(readyTxnsQueryParamsAtom, update)
     const params = get(readyTxnsQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/transactions?page=${params.page}&size=${params.size}&status=READY`)
+    let url = '/api/transactions?status=READY'
+    const queryString = objectToQueryString(params)
+    if (queryString.trim().length) {
+      url += `&${queryString}`
+    }
+
+    const { data: response } = await axios.get(url)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)
@@ -47,7 +54,7 @@ export default function ReadyTxnsDataTable() {
   const pageInfo = useAtomValue(pageInfoAtom)
 
   React.useEffect(() => {
-    setQueryParams({ page: 0, size: 10 })
+    setQueryParams({ page: '0', size: '10' })
   }, [])
 
   const table = useReactTable({
@@ -69,11 +76,11 @@ export default function ReadyTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ page: pageNumber, size: Number(pageSize) }))
+  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ page: pageNumber + '', size: pageSize + '' }))
 
   return (
     <div className="w-full">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar updaterFunc={setQueryParams} />
       <DataTable table={table} columns={columns} />
       <div className="flex justify-center space-x-2 py-4">
         <Button variant="default" disabled={true} className="h-8">Process</Button>

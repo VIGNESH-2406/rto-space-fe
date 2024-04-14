@@ -94,12 +94,14 @@ function DatePickerWithRange({ className, updaterFunc }) {
     if (date && date.from && date.to) {
       updaterFunc(prev => ({
         ...prev,
+        page: '0',
         from: date.from.toISOString().split('T')[0],
         to: date.to.toISOString().split('T')[0]
       }))
     } else {
       updaterFunc(prev => ({
         ...prev,
+        page: '0',
         from: '',
         to: ''
       }))
@@ -169,7 +171,7 @@ export function DataTableToolbar({ table, updaterFunc }) {
             type="text"
             placeholder="search customer"
             className="w-52"
-            onChange={(e) => updaterFunc(prev => ({ ...prev, keyword: e.target.value }))}
+            onChange={(e) => updaterFunc(prev => ({ ...prev, page: '0', keyword: e.target.value }))}
           />
         </div>
       </div>

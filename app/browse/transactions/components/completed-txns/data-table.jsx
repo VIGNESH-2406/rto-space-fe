@@ -76,7 +76,7 @@ export default function CompletedTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize }))
+  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' }))
 
   return <div className="space-y-4">
     <DataTableToolbar table={table} updaterFunc={setQueryParams} />
