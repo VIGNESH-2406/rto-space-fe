@@ -89,25 +89,6 @@ export function ComboboxPopover({ column }) {
 function DatePickerWithRange({ className, updaterFunc }) {
   const [date, setDate] = React.useState(null)
 
-  React.useEffect(() => {
-    console.log("date changed", date)
-    if (date && date.from && date.to) {
-      updaterFunc(prev => ({
-        ...prev,
-        page: '0',
-        from: date.from.toISOString().split('T')[0],
-        to: date.to.toISOString().split('T')[0]
-      }))
-    } else {
-      updaterFunc(prev => ({
-        ...prev,
-        page: '0',
-        from: '',
-        to: ''
-      }))
-    }
-  }, [date])
-
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -141,7 +122,24 @@ function DatePickerWithRange({ className, updaterFunc }) {
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={data => {
+              setDate(data)
+              if (data && data.from && data.to) {
+                updaterFunc(prev => ({
+                  ...prev,
+                  page: '0',
+                  from: data.from.toISOString().split('T')[0],
+                  to: data.to.toISOString().split('T')[0]
+                }))
+              } else {
+                updaterFunc(prev => ({
+                  ...prev,
+                  page: '0',
+                  from: '',
+                  to: ''
+                }))
+              }
+            }}
             numberOfMonths={2}
           />
         </PopoverContent>

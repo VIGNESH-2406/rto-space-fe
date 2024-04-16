@@ -56,9 +56,7 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
   React.useEffect(() => {
     if (statusFilter) {
       updaterFunc(prev => ({ ...prev, page: '0', status: statusFilter.value }))
-    } else {
-      updaterFunc(prev => ({ ...prev, page: '0', status: '' }))
-    }
+    } 
   }, [statusFilter])
 
   const statuses = [
@@ -95,11 +93,11 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
           <span className="ml-4 text-sm"> Create Transaction </span>
         </Button>
         <div className="flex items-center space-x-2">
-          {statusFilter && (
+          {statusFilter && statusFilter.value && (
             <Button
               variant="ghost"
               onClick={() => {
-                setStatusFilter(null)
+                setStatusFilter({ label: '', value: '' })
               }}
               className="h-8 px-2 lg:px-3"
             >
@@ -158,7 +156,7 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
                 aria-expanded={openStatusSearch}
                 className="flex-1 h-8 justify-between max-w-[200px]"
               >
-                {statusFilter ? statusFilter.label : `Select status`}
+                {statusFilter && statusFilter.label ? statusFilter.label : `Select status`}
                 <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>

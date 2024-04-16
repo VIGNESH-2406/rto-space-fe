@@ -1,6 +1,4 @@
 import React from 'react';
-import { useAtom } from 'jotai';
-import { tokenWithPersistenceAtom } from "@/lib/authAtom";
 import { useRouter } from 'next/navigation'
 
 // TODO: call backend to validate token
@@ -9,7 +7,6 @@ const isValidToken = (token) => {
 };
 
 const ProtectedRoute = ({ children }) => {
-  // const [token] = useAtom(tokenWithPersistenceAtom);
   const router = useRouter();
   const token = localStorage.getItem('userToken')
 

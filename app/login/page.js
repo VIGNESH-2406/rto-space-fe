@@ -32,18 +32,10 @@ const Login = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('/api/login', data);
+      const response = await axios.post('/api/employees/auth', data);
 
-      if (response.data.success) {
-        localStorage.setItem('userToken', response.data.userToken)
-        router.push('/');
-      } else {
-        toast({
-          title: "Login Failed",
-          description: response.data.error,
-        })
-        router.push('/register');
-      }
+      localStorage.setItem('userToken', response.data.userToken)
+      router.push('/');
     } catch (error) {
       // Handle login failure, show error message, etc.
       toast({
@@ -96,7 +88,7 @@ const Login = () => {
         </form>
         <div className='flex items-center mt-8 ml-2'>
           <p className='text-sm'>Don't have an account?</p>
-          <Link href="/register">
+          <Link href="/create-account">
             <p className="ml-2 underline">Register</p>
           </Link>
         </div>
