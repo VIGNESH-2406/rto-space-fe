@@ -35,23 +35,12 @@ const Register = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('/api/register', data);
-
-      if (response.data.success) {
-        // Redirect to the dashboard or another page upon successful registration
-        toast({
-          title: "Login Success",
-          description: response.data.message,
-        })
-        router.push('/login');
-      } else {
-        // Handle registration failure, show error message, etc.
-        toast({
-          title: "Login Failed",
-          description: response.data.error,
-        })
-        router.push('/register');
-      }
+      const response = await axios.post('/api/employees', data);
+      toast({
+        title: "Registration Success",
+        description: response.data.message,
+      })
+      router.push('/login');
     } catch (error) {
       toast({
         title: "Registration Failed",

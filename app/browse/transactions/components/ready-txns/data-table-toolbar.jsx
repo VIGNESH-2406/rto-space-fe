@@ -48,8 +48,6 @@ export default function DataTableToolbar({ updaterFunc }) {
     console.log("selected rto", rto)
     if (rto) {
       updaterFunc(prev => ({ ...prev, page: '0', toRTO: rto.value }))
-    } else {
-      updaterFunc(prev => ({ ...prev, page: '0', toRTO: '' }))
     }
   }, [rto])
 
@@ -63,11 +61,11 @@ export default function DataTableToolbar({ updaterFunc }) {
         <span className="ml-4 text-sm"> Create Transaction </span>
       </Button>
       <div className="flex items-center space-x-4 text-sm">
-        {rto && (
+        {rto && rto.value && (
           <Button
             variant="ghost"
             onClick={() => {
-              setRto(null)
+              setRto({ label: '', value: '' })
               setDeliveryAgent(null)
             }}
             className="h-8 px-2 lg:px-3"
@@ -85,7 +83,7 @@ export default function DataTableToolbar({ updaterFunc }) {
               aria-expanded={openRtoSearch}
               className="flex-1 h-8 justify-between max-w-[200px]"
             >
-              {rto ? rto.label : `Select RTO`}
+              {rto && rto.label ? rto.label : `Select RTO`}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
