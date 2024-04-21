@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ProfileForm } from "./profile-form";
 import axios from '@/config/axios.new.config'
 import { CaretSortIcon } from '@radix-ui/react-icons'
+import CreateAccountForm from "@/components/create-account";
 
 export const userInfoAtom = atom({})
 
@@ -29,6 +30,7 @@ export function UserNav({ isCollapsed }) {
   const [userInfo, setUserInfo] = useAtom(userInfoAtom)
   const [showDialog, setShowDialog] = React.useState(false)
   const [profile, setProfile] = React.useState({})
+  const [showAccountDialog, setShowAccountDialog] = React.useState(false)
 
   async function getUserInfo() {
     const { data } = await axios.get('/api/employees/me')
@@ -76,9 +78,12 @@ export function UserNav({ isCollapsed }) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={async () => { await getProfile();  setShowDialog(true) }}>
+          <DropdownMenuItem onClick={async () => { await getProfile(); setShowDialog(true) }}>
             Profile
           </DropdownMenuItem>
+          {userInfo?.level === 1 &&
+            <DropdownMenuItem onClick={() => setShowAccountDialog(true)}>Create account</DropdownMenuItem>
+          }
           <DropdownMenuItem onClick={() => {
             localStorage.clear()
             router.replace('/login');
@@ -96,6 +101,17 @@ export function UserNav({ isCollapsed }) {
             </DialogDescription>
           </DialogHeader>
           <ProfileForm closeModal={() => setShowDialog(false)} data={profile} />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showAccountDialog} onOpenChange={setShowAccountDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create account</DialogTitle>
+            <DialogDescription>
+              Enter your information to create an account
+            </DialogDescription>
+          </DialogHeader>
+          <CreateAccountForm closeModal={() => setShowAccountDialog(false)} />
         </DialogContent>
       </Dialog>
     </>
