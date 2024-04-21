@@ -40,7 +40,8 @@ export function InvoiceForm({ data, closeModal }) {
       })
     } catch (err) {
       toast({
-        title: "Oops! Something went wrong",
+        title: "Couldn't update invoice",
+        variant: 'destructive',
         description: err.response.data.message
       })
     } finally {
