@@ -1,4 +1,4 @@
-import DataTable from "../data-table";
+import DataTable from "@/components/data-table";
 
 import {
   getCoreRowModel,
@@ -78,10 +78,10 @@ export default function CompletedTxnsDataTable() {
 
   const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' }))
 
-  return <div className="space-y-4">
+  return <div className="space-y-2">
     <DataTableToolbar table={table} updaterFunc={setQueryParams} />
     <DataTable table={table} columns={columns} />
-    <div className="flex justify-center space-x-2 py-4">
+    <div className="flex justify-center space-x-2 py-2">
       <Button
         variant="default"
         disabled={!table.getFilteredSelectedRowModel().rows.length} className="h-8"

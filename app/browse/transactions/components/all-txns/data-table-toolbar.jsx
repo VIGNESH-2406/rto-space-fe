@@ -23,7 +23,7 @@ import {
 import TransactionForm from "../transaction-form";
 import axios from "@/config/axios.new.config";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { cn } from "@/lib/utils"
+import { cn, debounce } from "@/lib/utils"
 import { Input } from "@/components/ui/input";
 
 export const DataTableToolbar = ({ table, updaterFunc }) => {
@@ -56,7 +56,7 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
   React.useEffect(() => {
     if (statusFilter) {
       updaterFunc(prev => ({ ...prev, page: '0', status: statusFilter.value }))
-    } 
+    }
   }, [statusFilter])
 
   const statuses = [
@@ -81,6 +81,10 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
       label: "Completed"
     }
   ]
+
+  const debouncedUpdaterFunc = debounce((value) => {
+    updaterFunc(prev => ({ ...prev, page: '0', keyword: value }));
+  }, 300);
 
   return (
     <>
@@ -192,7 +196,7 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
             type="text"
             placeholder="search customer"
             className="w-52"
-            onChange={(e) => updaterFunc(prev => ({ ...prev, page: '0', keyword: e.target.value }))}
+            onChange={(e) => debouncedUpdaterFunc(e.target.value)}
           />
         </div>
       </div>

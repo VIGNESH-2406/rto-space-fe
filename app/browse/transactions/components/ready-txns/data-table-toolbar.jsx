@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Plus } from 'lucide-react';
 import { Cross2Icon } from "@radix-ui/react-icons"
 import React from "react";
@@ -23,12 +22,12 @@ import TransactionForm from "../transaction-form";
 import { Input } from "@/components/ui/input";
 import axios from '@/config/axios.new.config'
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { debounce } from "@/lib/utils";
 
-export default function DataTableToolbar({ updaterFunc }) {
+export default function DataTableToolbar({ updaterFunc, setDeliveryAgent }) {
 
   const [openRtoSearch, setOpenRtoSearch] = React.useState(false)
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
-  const [deliveryAgent, setDeliveryAgent] = React.useState()
   const [rto, setRto] = React.useState()
   const [rtos, setRtos] = React.useState([])
 
@@ -51,8 +50,12 @@ export default function DataTableToolbar({ updaterFunc }) {
     }
   }, [rto])
 
+  const debouncedUpdaterFunc = debounce((value) => {
+    updaterFunc(prev => ({ ...prev, page: '0', keyword: value }));
+  }, 300);
+
   return <>
-    <div className="flex justify-between py-4">
+    <div className="flex justify-between">
       <Button
         variant="default"
         onClick={() => setShowTransactionFormDialog(true)}
@@ -60,7 +63,7 @@ export default function DataTableToolbar({ updaterFunc }) {
         <Plus size={18} />
         <span className="ml-4 text-sm"> Create Transaction </span>
       </Button>
-      <div className="flex items-center space-x-4 text-sm">
+      <div className="flex items-center space-x-2 text-sm">
         {rto && rto.value && (
           <Button
             variant="ghost"
@@ -117,8 +120,13 @@ export default function DataTableToolbar({ updaterFunc }) {
             </Command>
           </PopoverContent>
         </Popover>
-        <Separator orientation="vertical" />
         <Input className="w-52" placeholder="assign delivery agent" onChange={e => setDeliveryAgent(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="search customer"
+          className="w-52"
+          onChange={(e) => debouncedUpdaterFunc(e.target.value)}
+        />
       </div>
     </div>
     <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>
