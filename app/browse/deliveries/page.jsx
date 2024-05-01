@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
   getCoreRowModel,
   getFacetedRowModel,
@@ -11,31 +10,24 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { DataTablePagination } from "@/components/data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
-import columns from "./columns"
-import DataTable from "@/components/data-table"
-import { atom, useAtomValue, useAtom } from 'jotai'
-import axios from "@/config/axios.new.config"
-import { objectToQueryString } from "@/lib/utils"
+import React from "react";
+import columns from "./columns";
+import { atom, useSetAtom, useAtomValue } from 'jotai'
+import { DataTablePagination } from "@/components/data-table-pagination";
+import DataTable from "@/components/data-table";
+import axios from '@/config/axios.new.config'
 
 const dataAtom = atom([])
-const allTxnsQueryParamsAtom = atom({})
+const deliveryQueryParamsAtom = atom({})
 const pageInfoAtom = atom({})
 
-export const allTxnsPageAtom = atom(
-  (get) => get(allTxnsQueryParamsAtom),
+export const deliveriesPageAtom = atom(
+  (get) => get(deliveryQueryParamsAtom),
   async (get, set, update) => {
-    set(allTxnsQueryParamsAtom, update)
-    const params = get(allTxnsQueryParamsAtom)
+    set(deliveryQueryParamsAtom, update)
+    const params = get(deliveryQueryParamsAtom)
 
-    let url = "/api/transactions?"
-    const queryString = objectToQueryString(params)
-    if (queryString.trim().length) {
-      url += queryString
-    }
-
-    const { data: response } = await axios.get(url)
+    const { data: response } = await axios.get(`/api/deliveries?page=${params.page}&size=${params.size}`)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)
@@ -43,16 +35,16 @@ export const allTxnsPageAtom = atom(
   }
 )
 
-export default function AllTxnsDataTable() {
+export default function Deliveries() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const [queryParams, setQueryParams] = useAtom(allTxnsPageAtom)
   const data = useAtomValue(dataAtom)
   const pageInfo = useAtomValue(pageInfoAtom)
+  const setDeliveryQueryParams = useSetAtom(deliveriesPageAtom)
 
-  React.useEffect(() => { setQueryParams({ page: '0', size: '10' }) }, [])
+  React.useEffect(() => { setDeliveryQueryParams({ page: 0, size: 10 }) }, [])
 
   const table = useReactTable({
     data,
@@ -76,18 +68,15 @@ export default function AllTxnsDataTable() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  function updater(pageNumber, pageSize) {
-    setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' })
-  }
+  const Pagination = DataTablePagination(table)((page, size) => setDeliveryQueryParams({ page: page, size: size }))
 
-  const Pagination = DataTablePagination(table)(updater)
-
-  return (
-    <div className="space-y-2">
-      <DataTableToolbar table={table} updaterFunc={setQueryParams} />
-      <DataTable table={table} columns={columns} />
-      <div className="py-2"></div>
+  return <>
+    <div className="flex items-center px-4 py-3">
+      <h1 className="text-2xl font-bold">Deliveries</h1>
+    </div>
+    <div className="container mx-auto py-10 space-y-4">
+      <DataTable columns={columns} table={table} />
       <Pagination {...pageInfo} />
     </div>
-  )
+  </>
 }

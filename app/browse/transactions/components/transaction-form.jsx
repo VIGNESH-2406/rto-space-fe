@@ -100,6 +100,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   const form = useForm({ defaultValues })
   const watchVehicleRTO = form.watch("vehicleNo.rto");
   const watchServices = form.watch("services");
+  const watchCustomerId = form.watch("customerId");
 
   const [customers, setCustomers] = React.useState([])
   const [services, setServices] = React.useState([])
@@ -110,11 +111,17 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   const [selectedValues, setSelectedValues] = React.useState(new Set())
 
   React.useEffect(() => {
-    console.log("watch services")
     const selectedIds = [...selectedValues]
-    console.log("ids", selectedIds)
     setAmountFormState(selectedIds, services)
   }, [watchServices])
+
+  React.useEffect(() => {
+    const customerName = customers?.find(x => {
+      console.log(x.value, watchCustomerId)
+      return x.value === watchCustomerId
+    })?.name
+    form.setValue("customerName", customerName)
+  }, [watchCustomerId])
 
   React.useEffect(() => {
     getRtos()
@@ -135,7 +142,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   const getCustomers = async () => {
     try {
       const { data } = await axios.get('/api/fetch/customers')
-      setCustomers(data.map(x => ({ label: x.customerId, value: x.customerId })))
+      setCustomers(data.map(x => ({ label: x.customerId, value: x.customerId, name: x.customerName })))
     } catch (err) {
       console.log("error while fetching customers", err)
     }
@@ -278,7 +285,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
                 <FormItem>
                   <FormLabel>Customer Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="name" {...field} />
+                    <Input disabled={true} placeholder="name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -24,7 +24,7 @@ import { CalendarIcon } from "@radix-ui/react-icons"
 import { addDays, format } from "date-fns"
 import { DateRange } from "react-day-picker"
 
-import { cn } from "@/lib/utils"
+import { cn, debounce } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from '@/components/ui/input';
 import TransactionForm from '../transaction-form';
@@ -153,6 +153,10 @@ export function DataTableToolbar({ table, updaterFunc }) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [showTransactionFormDialog, setShowTransactionFormDialog] = React.useState(false)
 
+  const debouncedUpdaterFunc = debounce((value) => {
+    updaterFunc(prev => ({ ...prev, page: '0', keyword: value }));
+  }, 300);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -169,7 +173,7 @@ export function DataTableToolbar({ table, updaterFunc }) {
             type="text"
             placeholder="search customer"
             className="w-52"
-            onChange={(e) => updaterFunc(prev => ({ ...prev, page: '0', keyword: e.target.value }))}
+            onChange={(e) => debouncedUpdaterFunc(e.target.value)}
           />
         </div>
       </div>

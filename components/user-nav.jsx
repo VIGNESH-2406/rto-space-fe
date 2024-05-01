@@ -65,7 +65,7 @@ export function UserNav({ isCollapsed }) {
               <AvatarFallback>{userInfo?.initials}</AvatarFallback>
             </Avatar>
             <span className={cn("ml-4", isCollapsed && "hidden")}>{userInfo?.name}</span>
-            <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            <CaretSortIcon className={cn("ml-auto h-4 w-4 shrink-0 opacity-50", isCollapsed && "hidden")} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>

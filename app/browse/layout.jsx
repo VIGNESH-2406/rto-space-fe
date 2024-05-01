@@ -62,7 +62,7 @@ export default function Browse({ children }) {
                 {
                   title: "Deliveries",
                   label: "",
-                  href: "#",
+                  href: "/browse/deliveries",
                   icon: Truck,
                 },
                 {

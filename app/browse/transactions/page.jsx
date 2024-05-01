@@ -18,14 +18,14 @@ export default function Transactions() {
             <TabsTrigger value="completed" className="text-zinc-600 dark:text-zinc-200">Completed</TabsTrigger>
           </TabsList>
         </div>
-        <div className="container mx-auto py-10">
-          <TabsContent value="ready" className="m-0">
-            <ReadyTxnsDataTable />
-          </TabsContent>
-          <TabsContent value="all" className="m-0">
+        <div className="container py-2">
+          <TabsContent value="all">
             <AllTxnsDataTable />
           </TabsContent>
-          <TabsContent value="completed" className="m-0">
+          <TabsContent value="ready">
+            <ReadyTxnsDataTable />
+          </TabsContent>
+          <TabsContent value="completed">
             <CompletedTxnsDataTable />
           </TabsContent>
         </div>
