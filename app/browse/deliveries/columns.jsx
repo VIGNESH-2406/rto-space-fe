@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { format } from "date-fns"
+import { DataTableRowActions } from "./data-table-row-actions"
 
 const columns = [
   {
@@ -100,10 +101,10 @@ const columns = [
       return value.includes(row.getValue(id))
     },
   },
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => <DataTableRowActions row={row} />,
-  // },
+  {
+    id: "actions",
+    cell: ({ row }) => <DataTableRowActions row={row} />,
+  },
 ]
 
 export default columns;

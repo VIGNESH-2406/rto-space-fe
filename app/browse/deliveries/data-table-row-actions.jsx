@@ -30,17 +30,9 @@ export function DataTableRowActions({ row }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem onClick={() => { console.log(row.original, "selected row"); setShowDialog(true) }}>
-            <Pencil className="size-4 mr-2" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Trash2 className="size-4 mr-2" />
-            Delete
-          </DropdownMenuItem>
           <DropdownMenuItem>
             <Eye className="size-4 mr-2" />
-            <a href={row.original.invoicePdf} target="_blank">
+            <a href={row.original.deliveryPdfUrl} target="_blank">
               View
             </a>
           </DropdownMenuItem>
