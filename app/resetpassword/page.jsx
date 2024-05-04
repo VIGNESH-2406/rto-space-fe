@@ -16,8 +16,17 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useToast } from "@/components/ui/use-toast"
 import { CircleCheck } from 'lucide-react';
+import { Suspense } from "react"
 
-export default function PasswordReset() {
+export default function PasswordResetWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PasswordReset />
+    </Suspense>
+  )
+}
+
+function PasswordReset() {
   const form = useForm()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')

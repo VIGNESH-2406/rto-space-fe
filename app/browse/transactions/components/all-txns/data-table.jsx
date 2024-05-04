@@ -11,7 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { DataTablePagination } from "@/components/data-table-pagination"
+import DataTablePagination from "@/components/data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import columns from "./columns"
 import DataTable from "@/components/data-table"
@@ -80,14 +80,12 @@ export default function AllTxnsDataTable() {
     setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' })
   }
 
-  const Pagination = DataTablePagination(table)(updater)
-
   return (
     <div className="space-y-2">
       <DataTableToolbar table={table} updaterFunc={setQueryParams} />
       <DataTable table={table} columns={columns} />
       <div className="py-2"></div>
-      <Pagination {...pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updater} pageInfo={pageInfo} />
     </div>
   )
 }

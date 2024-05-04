@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import DataTable from "@/components/data-table"
 import DataTableToolbar from "./data-table-toolbar"
 import columns from "./columns"
-import { DataTablePagination } from "@/components/data-table-pagination"
+import DataTablePagination from "@/components/data-table-pagination"
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
 import { objectToQueryString } from "@/lib/utils"
@@ -81,7 +81,7 @@ export default function ReadyTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ page: pageNumber + '', size: pageSize + '' }))
+  const updaterFunc = (pageNumber, pageSize) => setQueryParams({ page: pageNumber + '', size: pageSize + '' })
 
   return (
     <div className="space-y-2">
@@ -138,7 +138,7 @@ export default function ReadyTxnsDataTable() {
           'Process'
         )}</Button>
       </div>
-      <Pagination {...pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
     </div>
   )
 }

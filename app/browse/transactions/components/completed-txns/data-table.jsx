@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 
 import columns from "./columns";
-import { DataTablePagination } from "@/components/data-table-pagination";
+import DataTablePagination from "@/components/data-table-pagination";
 import React from "react";
 import axios from "@/config/axios.new.config";
 import { DataTableToolbar } from "./data-table-toolbar";
@@ -76,7 +76,7 @@ export default function CompletedTxnsDataTable() {
     },
   })
 
-  const Pagination = DataTablePagination(table)((pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' }))
+  const updaterFunc = (pageNumber, pageSize) => setQueryParams({ ...queryParams, page: pageNumber + '', size: pageSize + '' })
 
   return <div className="space-y-2">
     <DataTableToolbar table={table} updaterFunc={setQueryParams} />
@@ -135,6 +135,6 @@ export default function CompletedTxnsDataTable() {
         'Process'
       )}</Button>
     </div>
-    <Pagination {...pageInfo} />
+    <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
   </div>
 }

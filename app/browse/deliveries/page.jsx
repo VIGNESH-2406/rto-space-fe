@@ -13,7 +13,7 @@ import {
 import React from "react";
 import columns from "./columns";
 import { atom, useSetAtom, useAtomValue } from 'jotai'
-import { DataTablePagination } from "@/components/data-table-pagination";
+import DataTablePagination from "@/components/data-table-pagination";
 import DataTable from "@/components/data-table";
 import axios from '@/config/axios.new.config'
 
@@ -68,7 +68,7 @@ export default function Deliveries() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  const Pagination = DataTablePagination(table)((page, size) => setDeliveryQueryParams({ page: page, size: size }))
+  const updaterFunc = (page, size) => setDeliveryQueryParams({ page: page, size: size })
 
   return <>
     <div className="flex items-center px-4 py-3">
@@ -76,7 +76,7 @@ export default function Deliveries() {
     </div>
     <div className="container mx-auto py-10 space-y-4">
       <DataTable columns={columns} table={table} />
-      <Pagination {...pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
     </div>
   </>
 }

@@ -17,7 +17,7 @@ import React from "react";
 
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
-import { DataTablePagination } from "@/components/data-table-pagination";
+import DataTablePagination from "@/components/data-table-pagination";
 
 const dataAtom = atom([])
 const invoicesQueryParamsAtom = atom({})
@@ -71,7 +71,7 @@ export default function Invoices() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  const Pagination = DataTablePagination(table)((page, size) => setInvoiceQueryParams({ page: page, size: size }))
+  const updaterFunc = (page, size) => setInvoiceQueryParams({ page: page, size: size })
 
   return <>
     <div className="flex items-center px-4 py-3">
@@ -79,7 +79,7 @@ export default function Invoices() {
     </div>
     <div className="container mx-auto py-10 space-y-4">
       <DataTable columns={columns} table={table} />
-      <Pagination {...pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
     </div>
   </>
 }
