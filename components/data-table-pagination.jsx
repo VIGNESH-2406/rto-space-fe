@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/select"
 import React from "react"
 
-export const DataTablePagination = (table) => (updaterFunc) => ({ totalPages, totalItems, isFirst, isLast, page, size }) => {
+export default function DataTablePagination(props) {
+  const { table, updaterFunc, pageInfo } = props
+  const { totalPages, totalItems, isFirst, isLast, page, size } = pageInfo
 
   return (
     <div className="flex items-center justify-between px-2">

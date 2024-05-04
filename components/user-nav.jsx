@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, nextLocalStorage } from "@/lib/utils";
 import { atom, useAtom } from 'jotai'
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -85,7 +85,7 @@ export function UserNav({ isCollapsed }) {
             <DropdownMenuItem onClick={() => setShowAccountDialog(true)}>Create account</DropdownMenuItem>
           }
           <DropdownMenuItem onClick={() => {
-            localStorage.clear()
+            nextLocalStorage()?.clear()
             router.replace('/login');
           }}>
             Log out

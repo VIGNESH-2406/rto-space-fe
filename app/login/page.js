@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useToast } from "@/components/ui/use-toast"
 import axios from '@/config/axios.new.config';
+import { nextLocalStorage } from '@/lib/utils';
 
 // Define Zod schema for form validation
 const schema = z.object({
@@ -34,7 +35,7 @@ const Login = () => {
     try {
       const response = await axios.post('/api/employees/auth', data);
 
-      localStorage.setItem('userToken', response.data.userToken)
+      nextLocalStorage()?.setItem('userToken', response.data.userToken)
       router.push('/');
     } catch (error) {
       // Handle login failure, show error message, etc.
@@ -87,7 +88,7 @@ const Login = () => {
           </Button>
         </form>
         <div className='flex items-center mt-8 ml-2'>
-          <p className='text-sm'>Don't have an account?</p>
+          <p className='text-sm'>Don&apos;t have an account?</p>
           <Link href="/create-account">
             <p className="ml-2 underline">Register</p>
           </Link>

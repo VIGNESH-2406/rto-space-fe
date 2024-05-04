@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation'
+import { nextLocalStorage } from '@/lib/utils';
 
 // TODO: call backend to validate token
 const isValidToken = (token) => {
@@ -8,7 +9,7 @@ const isValidToken = (token) => {
 
 const ProtectedRoute = ({ children }) => {
   const router = useRouter();
-  const token = localStorage.getItem('userToken')
+  const token = nextLocalStorage()?.getItem('userToken')
 
   React.useEffect(() => {
     if (!isValidToken(token)) {

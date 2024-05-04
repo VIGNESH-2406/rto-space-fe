@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 
-import { cn } from "@/lib/utils"
+import { cn, nextLocalStorage } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import {
   Tooltip,
@@ -13,12 +13,12 @@ import React from "react"
 
 export function Nav({ links, isCollapsed }) {
   const [selected, setSelected] = React.useState(() => {
-    const savedIndex = localStorage.getItem("selectedNavLinkIndex");
+    const savedIndex = nextLocalStorage()?.getItem("selectedNavLinkIndex");
     return savedIndex ? parseInt(savedIndex, 10) : 0;
   });
 
   React.useEffect(() => {
-    localStorage.setItem("selectedNavLinkIndex", selected.toString());
+    nextLocalStorage()?.setItem("selectedNavLinkIndex", selected.toString());
   }, [selected]);
 
   return (
