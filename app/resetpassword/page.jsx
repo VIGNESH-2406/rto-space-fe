@@ -35,7 +35,7 @@ function PasswordReset() {
 
   async function onSubmit({ password }) {
     try {
-      await axios.put('http://localhost:8080/api/employees/resetpassword', { password }, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/employees/resetpassword`, { password }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
