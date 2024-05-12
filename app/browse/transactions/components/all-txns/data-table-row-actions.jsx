@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -68,6 +67,21 @@ export function DataTableRowActions({ row, tableName }) {
               })
             }
           }}>Delete</DropdownMenuItem>
+          {transaction.form30part1 && <DropdownMenuItem>
+            <a href={transaction.form30part1} target="_blank">
+              Form 30 I
+            </a>
+          </DropdownMenuItem>}
+          {transaction.form30part2 && <DropdownMenuItem>
+            <a href={transaction.form30part2} target="_blank">
+              Form 30 II
+            </a>
+          </DropdownMenuItem>}
+          {transaction.form29 && <DropdownMenuItem>
+            <a href={transaction.form29} target="_blank">
+              Form 29
+            </a>
+          </DropdownMenuItem>}
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={showTransactionFormDialog} onOpenChange={setShowTransactionFormDialog}>
