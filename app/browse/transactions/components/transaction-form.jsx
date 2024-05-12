@@ -43,6 +43,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import axios from '@/config/axios.new.config'
 import { useRefetch } from "@/hooks/use-refetch"
 import { Checkbox } from "@/components/ui/checkbox"
+import { LoaderCircle } from 'lucide-react';
 
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
@@ -108,6 +109,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   const [services, setServices] = React.useState([])
   const [banks, setBanks] = React.useState([])
   const [rtos, setRtos] = React.useState([])
+  const [isLoading, setIsLoading] = React.useState(false);
   const refetch = useRefetch()
 
   const [selectedValues, setSelectedValues] = React.useState(new Set())
@@ -187,6 +189,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   }
 
   async function createTransaction(formData) {
+    setIsLoading(true)
     try {
       await axios.post('/api/transactions', formData, {
         headers: {
@@ -203,11 +206,13 @@ export default function TransactionForm({ data, tableName, closeModal }) {
         description: error.response.data.message
       })
     } finally {
+      setIsLoading(false)
       closeModal()
     }
   }
 
   async function updateTransaction(id, formData) {
+    setIsLoading(true)
     try {
       await axios.put('/api/transactions/' + id, formData, {
         headers: {
@@ -224,6 +229,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
         description: error.response.data.message
       })
     } finally {
+      setIsLoading(false)
       closeModal()
     }
   }
@@ -836,7 +842,12 @@ export default function TransactionForm({ data, tableName, closeModal }) {
           <Button variant="outline" onClick={(e) => { e.preventDefault(); closeModal() }}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit">{isLoading ?
+            <div className="flex items-center">
+              <span className="mr-2">Saving...</span>
+              <LoaderCircle className="animate-spin" size={20} />
+            </div> : 'Save'
+          }</Button>
         </div>
       </form>
     </Form>
