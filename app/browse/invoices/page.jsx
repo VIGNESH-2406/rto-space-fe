@@ -29,7 +29,7 @@ export const invoicesPageAtom = atom(
     set(invoicesQueryParamsAtom, update)
     const params = get(invoicesQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/invoices?page=${params.page}&size=${params.size}`)
+    const { data: response } = await axios.get(`/invoices?page=${params.page}&size=${params.size}`)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)

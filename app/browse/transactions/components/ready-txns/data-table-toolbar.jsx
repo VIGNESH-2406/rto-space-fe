@@ -34,7 +34,7 @@ export default function DataTableToolbar({ updaterFunc, setDeliveryAgent }) {
   React.useEffect(() => {
     async function getRtos() {
       try {
-        const { data } = await axios.get('/api/fetch/rtos')
+        const { data } = await axios.get('/fetch/rtos')
         setRtos(data.map(x => ({ label: x.rto, value: x.rto })))
       } catch (err) {
         console.log("error while fetching rtos", err)

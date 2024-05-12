@@ -49,7 +49,7 @@ export function DataTableRowActions({ row, tableName }) {
           <DropdownMenuItem onClick={() => setShowTransactionFormDialog(true)}>Edit</DropdownMenuItem>
           <DropdownMenuItem onClick={async () => {
             try {
-              await axios.delete('/api/transactions/' + transaction.entryId)
+              await axios.delete('/transactions/' + transaction.entryId)
               refetch(tableName)
               toast({
                 title: (

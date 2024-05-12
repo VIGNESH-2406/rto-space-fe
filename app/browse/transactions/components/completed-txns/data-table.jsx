@@ -29,7 +29,7 @@ export const completedTxnsPageAtom = atom(
     set(completedTxnsQueryParamsAtom, update)
     const params = get(completedTxnsQueryParamsAtom)
 
-    let url = "/api/transactions?status=COMPLETED"
+    let url = "/transactions?status=COMPLETED"
     const queryString = objectToQueryString(params)
     if (queryString.trim().length) {
       url += `&${queryString}`
@@ -99,7 +99,7 @@ export default function CompletedTxnsDataTable() {
           }
           setIsLoading(true);
           try {
-            const { data } = await axios.post('/api/transactions/pdf', {
+            const { data } = await axios.post('/transactions/pdf', {
               transactionIds: entryIds,
               customerId: customerIds[0]
             })

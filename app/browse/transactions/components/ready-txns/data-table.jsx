@@ -32,7 +32,7 @@ export const readyTxnsPageAtom = atom(
     set(readyTxnsQueryParamsAtom, update)
     const params = get(readyTxnsQueryParamsAtom)
 
-    let url = '/api/transactions?status=READY'
+    let url = '/transactions?status=READY'
     const queryString = objectToQueryString(params)
     if (queryString.trim().length) {
       url += `&${queryString}`
@@ -106,7 +106,7 @@ export default function ReadyTxnsDataTable() {
             }
             setIsLoading(true);
             try {
-              const { data } = await axios.post('/api/transactions/deliverypdf', {
+              const { data } = await axios.post('/transactions/deliverypdf', {
                 transactionIds: entryIds,
                 toRTO: rtos[0],
                 deliveryBy: deliveryAgent

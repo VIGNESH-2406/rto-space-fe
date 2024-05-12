@@ -48,6 +48,12 @@ import { LoaderCircle } from 'lucide-react';
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
 
+  if (name === 'customerId') {
+    console.log('field', field.value)
+    console.log('field type', typeof field.value)
+    console.log('options', options)
+  }
+
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild>
       <FormControl>
@@ -59,7 +65,7 @@ function ComboBox({ form, field, name, options, placeholder }) {
             !field.value && "text-muted-foreground"
           )}
         >
-          {field.value ? options.find(item => item.value === field.value)?.label : `Select ${placeholder}`}
+          {field.value ? options.find(item => item.value == field.value)?.label : `Select ${placeholder}`}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </FormControl>
@@ -136,7 +142,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   const getRtos = async () => {
     try {
-      const { data } = await axios.get('/api/fetch/rtos')
+      const { data } = await axios.get('/fetch/rtos')
       setRtos(data.map(x => ({ label: x.rto, value: x.rto })))
     } catch (err) {
       console.log("error while fetching rtos", err)
@@ -145,7 +151,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   const getCustomers = async () => {
     try {
-      const { data } = await axios.get('/api/fetch/customers')
+      const { data } = await axios.get('/fetch/customers')
       setCustomers(data.map(x => ({ label: x.customerId, value: x.customerId, name: x.customerName })))
     } catch (err) {
       console.log("error while fetching customers", err)
@@ -154,7 +160,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   const getServices = async () => {
     try {
-      const { data } = await axios.get('/api/fetch/services')
+      const { data } = await axios.get('/fetch/services')
       const services = data.map(x => ({ label: x.serviceId, value: x.serviceId, amount: x.amount }))
       setServices(services)
       if (defaultValues) {
@@ -181,7 +187,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
 
   const getBanks = async () => {
     try {
-      const { data } = await axios.get('/api/fetch/banks')
+      const { data } = await axios.get('/fetch/banks')
       setBanks(data.map(x => ({ label: x.bank, value: x.bankId })))
     } catch (err) {
       console.log("error while fetching services", err)
@@ -191,7 +197,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   async function createTransaction(formData) {
     setIsLoading(true)
     try {
-      await axios.post('/api/transactions', formData, {
+      await axios.post('/transactions', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -214,7 +220,7 @@ export default function TransactionForm({ data, tableName, closeModal }) {
   async function updateTransaction(id, formData) {
     setIsLoading(true)
     try {
-      await axios.put('/api/transactions/' + id, formData, {
+      await axios.put('/transactions/' + id, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }

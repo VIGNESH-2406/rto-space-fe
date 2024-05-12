@@ -33,7 +33,7 @@ export function UserNav({ isCollapsed }) {
   const [showAccountDialog, setShowAccountDialog] = React.useState(false)
 
   async function getUserInfo() {
-    const { data } = await axios.get('/api/employees/me')
+    const { data } = await axios.get('/employees/me')
     const { firstName, lastName } = data
     data['initials'] = firstName[0] + lastName[0]
     data['name'] = firstName + " " + lastName
@@ -41,7 +41,7 @@ export function UserNav({ isCollapsed }) {
   }
 
   async function getProfile() {
-    const { data } = await axios.get('/api/employees/' + userInfo._id)
+    const { data } = await axios.get('/employees/' + userInfo._id)
     setProfile(data)
   }
 

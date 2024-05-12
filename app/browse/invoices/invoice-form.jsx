@@ -25,7 +25,7 @@ export function InvoiceForm({ data, closeModal }) {
   async function onSubmit(filledData) {
     const { receivedAmount, discount } = filledData
     try {
-      await axios.patch('/api/invoices/' + filledData.invoiceNo, {
+      await axios.patch('/invoices/' + filledData.invoiceNo, {
         receivedAmount,
         discount
       })

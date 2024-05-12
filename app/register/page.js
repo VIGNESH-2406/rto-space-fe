@@ -35,7 +35,7 @@ const Register = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('/api/employees', data);
+      const response = await axios.post('/employees', data);
       toast({
         title: "Registration Success",
         description: response.data.message,

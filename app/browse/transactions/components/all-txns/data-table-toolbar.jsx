@@ -35,7 +35,7 @@ export const DataTableToolbar = ({ table, updaterFunc }) => {
 
   async function updateStatus() {
     try {
-      await axios.patch('/api/transactions/status', {
+      await axios.patch('/transactions/status', {
         ids: table.getFilteredSelectedRowModel().rows.map(x => x.original.entryId),
         status: selectedStatus.value
       })
