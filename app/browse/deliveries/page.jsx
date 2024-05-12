@@ -27,7 +27,7 @@ export const deliveriesPageAtom = atom(
     set(deliveryQueryParamsAtom, update)
     const params = get(deliveryQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/api/deliveries?page=${params.page}&size=${params.size}`)
+    const { data: response } = await axios.get(`/deliveries?page=${params.page}&size=${params.size}`)
     const { totalPages, totalItems, isFirst, isLast, page, size } = response
 
     set(dataAtom, response.items)

@@ -33,7 +33,7 @@ const Login = () => {
   const onSubmit = async (data) => {
     // Make API call to your backend with the provided credentials
     try {
-      const response = await axios.post('/api/employees/auth', data);
+      const response = await axios.post('/employees/auth', data);
 
       nextLocalStorage()?.setItem('userToken', response.data.userToken)
       router.push('/');

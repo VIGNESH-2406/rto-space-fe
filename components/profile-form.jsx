@@ -100,7 +100,7 @@ export function ProfileForm({ data, closeModal }) {
     const { _id, createdAt, updatedAt, ...rest } = filledData
 
     try {
-      await axios.put('/api/employees/' + _id, rest)
+      await axios.put('/employees/' + _id, rest)
       toast({
         title: (
           <div className="flex items-center">

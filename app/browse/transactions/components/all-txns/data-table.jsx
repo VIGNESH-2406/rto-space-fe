@@ -29,7 +29,7 @@ export const allTxnsPageAtom = atom(
     set(allTxnsQueryParamsAtom, update)
     const params = get(allTxnsQueryParamsAtom)
 
-    let url = "/api/transactions?"
+    let url = "/transactions?"
     const queryString = objectToQueryString(params)
     if (queryString.trim().length) {
       url += queryString

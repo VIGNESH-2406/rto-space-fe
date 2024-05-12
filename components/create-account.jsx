@@ -99,7 +99,7 @@ export default function CreateAccountForm({ closeModal }) {
 
   async function onSubmit(data) {
     try {
-      const response = await axios.post('/api/employees', data);
+      const response = await axios.post('/employees', data);
       toast({
         title: "Registration Success",
         description: response.data.message,
