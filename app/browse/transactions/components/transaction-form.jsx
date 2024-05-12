@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -41,6 +42,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 import axios from '@/config/axios.new.config'
 import { useRefetch } from "@/hooks/use-refetch"
+import { Checkbox } from "@/components/ui/checkbox"
 
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
@@ -807,6 +809,28 @@ export default function TransactionForm({ data, tableName, closeModal }) {
               </FormItem>
             )}
           />
+          <FormField
+          control={form.control}
+          name="generateForms"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                    Generate forms
+                </FormLabel>
+                <FormDescription>
+                    Seller and purchaser information is required to generate forms
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
         </div>
         <div className="flex justify-end gap-4 relative bottom-0 mt-4">
           <Button variant="outline" onClick={(e) => { e.preventDefault(); closeModal() }}>
