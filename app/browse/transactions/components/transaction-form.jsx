@@ -48,12 +48,6 @@ import { LoaderCircle } from 'lucide-react';
 function ComboBox({ form, field, name, options, placeholder }) {
   const [open, setOpen] = React.useState(false)
 
-  if (name === 'customerId') {
-    console.log('field', field.value)
-    console.log('field type', typeof field.value)
-    console.log('options', options)
-  }
-
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild>
       <FormControl>
