@@ -19,23 +19,17 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
 import DataTablePagination from "@/components/data-table-pagination";
 
-const dataAtom = atom([])
-const invoicesQueryParamsAtom = atom({})
-const pageInfoAtom = atom({})
+export const invoicesQueryParamsAtom = atom({
+  page: '0',
+  size: '10'
+})
 
-export const invoicesPageAtom = atom(
-  (get) => get(invoicesQueryParamsAtom),
-  async (get, set, update) => {
-    set(invoicesQueryParamsAtom, update)
-    const params = get(invoicesQueryParamsAtom)
+const apiAtom = atom(async (get) => {
+  const params = get(invoicesQueryParamsAtom)
 
-    const { data: response } = await axios.get(`/invoices?page=${params.page}&size=${params.size}`)
-    const { totalPages, totalItems, isFirst, isLast, page, size } = response
-
-    set(dataAtom, response.items)
-    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
-  }
-)
+  const { data } = await axios.get(`/invoices?page=${params.page}&size=${params.size}`)
+  return data
+})
 
 export default function Invoices() {
 
@@ -43,14 +37,12 @@ export default function Invoices() {
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const data = useAtomValue(dataAtom)
-  const pageInfo = useAtomValue(pageInfoAtom)
-  const setInvoiceQueryParams = useSetAtom(invoicesPageAtom)
+  const { items, totalPages, totalItems, isFirst, isLast, page, size } = useAtomValue(apiAtom)
+  const setInvoiceQueryParams = useSetAtom(invoicesQueryParamsAtom)
 
-  React.useEffect(() => { setInvoiceQueryParams({ page: 0, size: 10 }) }, [])
 
   const table = useReactTable({
-    data,
+    data: items ?? [],
     columns,
     state: {
       sorting,
@@ -79,7 +71,7 @@ export default function Invoices() {
     </div>
     <div className="container mx-auto py-10 space-y-4">
       <DataTable columns={columns} table={table} />
-      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={{ totalPages, totalItems, isFirst, isLast, page, size }} />
     </div>
   </>
 }

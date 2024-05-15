@@ -22,48 +22,37 @@ import { objectToQueryString } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import { LoaderCircle } from 'lucide-react';
 
-const dataAtom = atom([])
-const readyTxnsQueryParamsAtom = atom({})
-const pageInfoAtom = atom({})
+export const readyTxnsQueryParamsAtom = atom({
+  page: '0',
+  size: '10'
+})
 
-export const readyTxnsPageAtom = atom(
-  (get) => get(readyTxnsQueryParamsAtom),
-  async (get, set, update) => {
-    set(readyTxnsQueryParamsAtom, update)
-    const params = get(readyTxnsQueryParamsAtom)
+const apiAtom = atom(async (get) => {
+  const params = get(readyTxnsQueryParamsAtom)
 
-    let url = '/transactions?status=READY'
-    const queryString = objectToQueryString(params)
-    if (queryString.trim().length) {
-      url += `&${queryString}`
-    }
-
-    const { data: response } = await axios.get(url)
-    const { totalPages, totalItems, isFirst, isLast, page, size } = response
-
-    set(dataAtom, response.items)
-    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
+  let url = '/transactions?status=READY'
+  const queryString = objectToQueryString(params)
+  if (queryString.trim().length) {
+    url += `&${queryString}`
   }
-)
+
+  const { data } = await axios.get(url)
+  return data;
+})
 
 export default function ReadyTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
   const [columnFilters, setColumnFilters] = React.useState([])
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const setQueryParams = useSetAtom(readyTxnsPageAtom)
+  const setQueryParams = useSetAtom(readyTxnsQueryParamsAtom)
+  const { items, totalPages, totalItems, isFirst, isLast, page, size  } = useAtomValue(apiAtom)
   const [deliveryAgent, setDeliveryAgent] = React.useState()
-  const data = useAtomValue(dataAtom)
-  const pageInfo = useAtomValue(pageInfoAtom)
   const [isLoading, setIsLoading] = React.useState(false)
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    setQueryParams({ page: '0', size: '10' })
-  }, [])
-
   const table = useReactTable({
-    data,
+    data: items ?? [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -138,7 +127,7 @@ export default function ReadyTxnsDataTable() {
           'Process'
         )}</Button>
       </div>
-      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={{ totalPages, totalItems, isFirst, isLast, page, size }} />
     </div>
   )
 }

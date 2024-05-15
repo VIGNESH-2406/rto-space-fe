@@ -19,14 +19,15 @@ import { LoaderCircle } from 'lucide-react';
 import { atom, useAtomValue, useAtom } from 'jotai'
 import { objectToQueryString } from "@/lib/utils";
 
-const dataAtom = atom([])
-const completedTxnsQueryParamsAtom = atom({})
-const pageInfoAtom = atom({})
+export const completedTxnsQueryParamsAtom = atom({
+  page: '0',
+  size: '10',
+  keyword: '',
+  from: '',
+  to: '' 
+})
 
-export const completedTxnsPageAtom = atom(
-  (get) => get(completedTxnsQueryParamsAtom),
-  async (get, set, update) => {
-    set(completedTxnsQueryParamsAtom, update)
+const apiAtom = atom(async (get) => {
     const params = get(completedTxnsQueryParamsAtom)
 
     let url = "/transactions?status=COMPLETED"
@@ -35,30 +36,22 @@ export const completedTxnsPageAtom = atom(
       url += `&${queryString}`
     }
 
-    const { data: response } = await axios.get(url)
-    const { totalPages, totalItems, isFirst, isLast, page, size } = response
-    set(dataAtom, response.items)
-    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
-  }
-)
+    const { data } = await axios.get(url)
+    return data;
+})
 
 export default function CompletedTxnsDataTable() {
   const [sorting, setSorting] = React.useState([])
   const [columnFilters, setColumnFilters] = React.useState([])
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [queryParams, setQueryParams] = useAtom(completedTxnsPageAtom)
-  const data = useAtomValue(dataAtom)
-  const pageInfo = useAtomValue(pageInfoAtom)
+  const [queryParams, setQueryParams] = useAtom(completedTxnsQueryParamsAtom)
+  const { items, totalPages, totalItems, isFirst, isLast, page, size  } = useAtomValue(apiAtom)
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    setQueryParams({ page: '0', size: '10', keyword: '', from: '', to: '' })
-  }, [])
-
   const table = useReactTable({
-    data,
+    data: items ?? [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -135,6 +128,6 @@ export default function CompletedTxnsDataTable() {
         'Process'
       )}</Button>
     </div>
-    <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
+    <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={{ totalPages, totalItems, isFirst, isLast, page, size  }} />
   </div>
 }
