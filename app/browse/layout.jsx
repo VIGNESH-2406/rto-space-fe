@@ -12,13 +12,16 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import ProtectedRoute from "@/components/protected-route"
-import { UserNav } from "@/components/user-nav"
 import Image from 'next/image'
 import logo from '@/public/logo.jpg'
+
+import { LoaderCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-const ResizableHandle = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizableHandle));
-const ResizablePanel = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizablePanel));
-const ResizablePanelGroup = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizablePanelGroup));
+import { UserNav } from "@/components/user-nav"
+const ResizablePanelGroup = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizablePanelGroup),
+  { loading: () => <div className="h-full grid place-items-center"> <LoaderCircle className="animate-spin" size={48} /> </div> }
+);
+import { ResizableHandle, ResizablePanel } from '@/components/ui/resizable'
 
 export default function Browse({ children }) {
   const [defaultLayout, setDefaultLayout] = React.useState([20, 80]);
