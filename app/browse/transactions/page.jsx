@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ReadyTxnsDataTable  from "./components/ready-txns/data-table"
 import AllTxnsDataTable from "./components/all-txns/data-table"
 import CompletedTxnsDataTable from "./components/completed-txns/data-table"
-import React from "react"
 
 export default function Transactions() {
   return (

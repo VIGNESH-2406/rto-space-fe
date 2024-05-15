@@ -9,13 +9,16 @@ import {
 } from "lucide-react"
 import { Nav } from "@/app/browse/transactions/components/nav"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import ProtectedRoute from "@/components/protected-route"
 import { UserNav } from "@/components/user-nav"
 import Image from 'next/image'
 import logo from '@/public/logo.jpg'
+import dynamic from 'next/dynamic';
+const ResizableHandle = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizableHandle));
+const ResizablePanel = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizablePanel));
+const ResizablePanelGroup = dynamic(() => import('@/components/ui/resizable').then((module) => module.ResizablePanelGroup));
 
 export default function Browse({ children }) {
   const [defaultLayout, setDefaultLayout] = React.useState([20, 80]);
