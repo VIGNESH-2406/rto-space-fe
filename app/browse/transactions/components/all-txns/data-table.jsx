@@ -19,43 +19,34 @@ import { atom, useAtomValue, useAtom } from 'jotai'
 import axios from "@/config/axios.new.config"
 import { objectToQueryString } from "@/lib/utils"
 
-const dataAtom = atom([])
-const allTxnsQueryParamsAtom = atom({})
-const pageInfoAtom = atom({})
+export const allTxnsQueryParamsAtom = atom({
+  page: '0',
+  size: '10'
+})
 
-export const allTxnsPageAtom = atom(
-  (get) => get(allTxnsQueryParamsAtom),
-  async (get, set, update) => {
-    set(allTxnsQueryParamsAtom, update)
-    const params = get(allTxnsQueryParamsAtom)
+const apiAtom = atom(async (get) => {
+  const params = get(allTxnsQueryParamsAtom);
 
-    let url = "/transactions?"
-    const queryString = objectToQueryString(params)
-    if (queryString.trim().length) {
-      url += queryString
-    }
-
-    const { data: response } = await axios.get(url)
-    const { totalPages, totalItems, isFirst, isLast, page, size } = response
-
-    set(dataAtom, response.items)
-    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
+  let url = "/transactions?"
+  const queryString = objectToQueryString(params)
+  if (queryString.trim().length) {
+    url += queryString
   }
-)
+
+  const { data } = await axios.get(url)
+  return data;
+})
 
 export default function AllTxnsDataTable() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const [queryParams, setQueryParams] = useAtom(allTxnsPageAtom)
-  const data = useAtomValue(dataAtom)
-  const pageInfo = useAtomValue(pageInfoAtom)
-
-  React.useEffect(() => { setQueryParams({ page: '0', size: '10' }) }, [])
+  const [queryParams, setQueryParams] = useAtom(allTxnsQueryParamsAtom)
+  const { items, totalPages, totalItems, isFirst, isLast, page, size } = useAtomValue(apiAtom)
 
   const table = useReactTable({
-    data,
+    data: items ?? [],
     columns,
     state: {
       sorting,
@@ -85,7 +76,7 @@ export default function AllTxnsDataTable() {
       <DataTableToolbar table={table} updaterFunc={setQueryParams} />
       <DataTable table={table} columns={columns} />
       <div className="py-2"></div>
-      <DataTablePagination table={table} updaterFunc={updater} pageInfo={pageInfo} />
+      <DataTablePagination table={table} updaterFunc={updater} pageInfo={{ totalPages, totalItems, isFirst, isLast, page, size }} />
     </div>
   )
 }

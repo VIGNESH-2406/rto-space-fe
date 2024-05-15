@@ -17,37 +17,24 @@ import DataTablePagination from "@/components/data-table-pagination";
 import DataTable from "@/components/data-table";
 import axios from '@/config/axios.new.config'
 
-const dataAtom = atom([])
-const deliveryQueryParamsAtom = atom({})
-const pageInfoAtom = atom({})
+const deliveryQueryParamsAtom = atom({ page: '0', size: '10' })
 
-export const deliveriesPageAtom = atom(
-  (get) => get(deliveryQueryParamsAtom),
-  async (get, set, update) => {
-    set(deliveryQueryParamsAtom, update)
+const apiAtom = atom(async (get) => {
     const params = get(deliveryQueryParamsAtom)
-
-    const { data: response } = await axios.get(`/deliveries?page=${params.page}&size=${params.size}`)
-    const { totalPages, totalItems, isFirst, isLast, page, size } = response
-
-    set(dataAtom, response.items)
-    set(pageInfoAtom, { totalPages, totalItems, isFirst, isLast, page, size })
-  }
-)
+    const { data } = await axios.get(`/deliveries?page=${params.page}&size=${params.size}`)
+    return data
+})
 
 export default function Deliveries() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
   const [sorting, setSorting] = React.useState([])
-  const data = useAtomValue(dataAtom)
-  const pageInfo = useAtomValue(pageInfoAtom)
-  const setDeliveryQueryParams = useSetAtom(deliveriesPageAtom)
-
-  React.useEffect(() => { setDeliveryQueryParams({ page: 0, size: 10 }) }, [])
+  const { items, totalPages, totalItems, isFirst, isLast, page, size } = useAtomValue(apiAtom)
+  const setQueryParams = useSetAtom(deliveryQueryParamsAtom)
 
   const table = useReactTable({
-    data,
+    data: items ?? [],
     columns,
     state: {
       sorting,
@@ -68,7 +55,7 @@ export default function Deliveries() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  const updaterFunc = (page, size) => setDeliveryQueryParams({ page: page, size: size })
+  const updaterFunc = (page, size) => setQueryParams({ page: page, size: size })
 
   return <>
     <div className="flex items-center px-4 py-3">
@@ -76,7 +63,11 @@ export default function Deliveries() {
     </div>
     <div className="container mx-auto py-10 space-y-4">
       <DataTable columns={columns} table={table} />
-      <DataTablePagination table={table} updaterFunc={updaterFunc} pageInfo={pageInfo} />
+      <DataTablePagination 
+        table={table} 
+        updaterFunc={updaterFunc}
+        pageInfo={{ totalPages, totalItems, isFirst, isLast, page, size }}
+      />
     </div>
   </>
 }
