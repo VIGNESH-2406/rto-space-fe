@@ -42,11 +42,11 @@ function ForgotPassword() {
         <CardHeader>
           <CardTitle className="text-2xl">Reset your password</CardTitle>
           {!isMailSent && <CardDescription>
-            Enter your user account's verified email address and we will send you a password reset link.
+            Enter your user account&apos;s verified email address and we will send you a password reset link.
           </CardDescription>}
           {isMailSent && <CardDescription>
             Check your email for a link to reset your password.
-            If it doesn’t appear within a few minutes, check your spam folder.
+            If it doesn&apos;t appear within a few minutes, check your spam folder.
           </CardDescription>}
         </CardHeader>
         {!isMailSent && <CardContent className="grid gap-4">
